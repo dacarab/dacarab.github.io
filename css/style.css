@@ -48,6 +48,7 @@ h2.blogTitle {
     font-size: xxx-large;
 }
 
+
 p {
     margin-top: 0.4em;
 }
@@ -97,6 +98,11 @@ h3 {
     color: #2e6cdf;
     margin-bottom: 0em;
     margin-top: 2em;
+}
+
+h3.blogListTitle {
+    color:#245BC1;
+    margin-bottom: 0em;
 }
 
 a.tag {
