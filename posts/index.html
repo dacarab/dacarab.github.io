@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chroma-native.css">
+    <link rel="stylesheet" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+
+    <h2>Posts</h2>
+
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
+                <a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 of Packer and vSphere: Creating a Windows Answer File for Use With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+                    <a class="tag" href="/tags/windows">Windows</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In this article, we will cover the initial creation of a Windows answer file, which will be used as part of the Packer template file that we have been putting together in previous articles in this series. Future articles will discuss the additional configuration that will need to be added to this file as we tailor it to meet our needs.
+This answer file will automate the initial setup a Windows Server 2019 VM template in a vSphere 7 environment, which Packer will then customise to meet our needs.
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
+                <a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 of Packer and vSphere: Provisioning Installation Files With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 4 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In the previous article, we added the necessary configuration to our Packer template that defines the storage and network adapters that are presented to the VM template machine.
+In this article, we will further expand on our Packer template by configuring the windows installation media as well as presenting the necessary drivers to Windows OS at install time. In a future article, we&rsquo;ll cover off the configuration within the Windows answer file that is needed to point windows setup to the location of these driver files.
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
+                <a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">Part 4 of Packer and vSphere: Configuring VM Template With Virtual Devices With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        Previously, we started to look at adding OS agnostic virtual resources for the vSphere VM template to use.
+Next, we&rsquo;ll look at further expanding on the Packer template that we are building up by adding virtual devices that the operating system will interactive directly, and will need device drivers for.
+Defining the template OS In order to be able to utilise the storage resources that we&rsquo;ve defined, we need to define a virtual storage card - this will look like a piece of hardware to the template machine.
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
+                <a href="/posts/2021/01/configuring-vm-template-hardware-with-packer/">Part 3 of Packer and vSphere: Configuring VM Template Hardware With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 3 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In Part 2 of this series, we discussed how to utilise the vsphere-iso Packer builder component in order to connect up to a vSphere 7 environment.
+In this article, we will continue to expand on that template, and introduce configuration to define the virtual hardware to allocate to the template VM machine.
+Adding additional vSphere settings To start with, we&rsquo;ll create User Variables for the cluster, datacentre, datastore and vm folder that it will be deployed to, along with the relevant fields within the vsphere-iso builder:
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
+                <a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 of Packer and vSphere: Connecting to VSphere With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 4 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In this previous article, we had an initial look at Packer and the high level components that it employs to automate the creation of VM templates various cloud and hypervisor platforms.
+This time, we&rsquo;ll start to look at some specific configuration to enable us to connect up to a vSphere 7 environment, with a view automating the creation of a Windows Server 2019 VM template.
+Connecting to vSphere We&rsquo;ll start by just adding some initial builder config to the empty template we created in the previous article.
+    </div>
+</article>
+    
+
+    
+<ul class="pagination">
+  <li class="page-item">
+    <a href="/posts/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+  </li>
+  <li class="page-item disabled">
+    <a  class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+  </li>
+  <li class="page-item active">
+    <a class="page-link" href="/posts/">1</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/posts/page/2/">2</a>
+  </li>
+  <li class="page-item">
+    <a href="/posts/page/2/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/posts/page/2/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+  </li>
+</ul>
+
+
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>

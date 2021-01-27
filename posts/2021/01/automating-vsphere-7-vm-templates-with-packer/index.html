@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chroma-native.css">
+    <link rel="stylesheet" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Automating VSphere 7 VM Templates With Packer</h2>
+        <p class="blogSubTitle">
+            27 Jan 2021 | 
+            Reading time: 3 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+            
+                <span>
+                    | Part 1 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>In this article, we&rsquo;ll have an initial look at Packer, briefly discuss the high level components that make up Packer, and have a quick look at the format of an empty Packer Template.</p>
+<p><a href="https://packer.io">Packer</a> is one of a number of automation tools created by HashiCorp. It is used to automate the creation of virtual machine templates, for use on one or more virtualisation or cloud platforms. These templates can then be used to provision server environments.
+​​</p>
+<p>Employing Packer to generate templates in this way makes the process repeatable,  allowing for the creation of consistent images across multiple platforms, or different versions of the same operating system.</p>
+<p><img src="/images/packer-logo-398x156.png" alt="Packer"></p>
+<h3 id="running-packer">Running Packer</h3>
+<p>The Packer application consists of a single executable, that can be <a href="https://www.packer.io/downloads">downloaded</a> for Windows, Linux, Mac and other operating systems.</p>
+<p>When run, Packer expects to be passed a <a href="https://www.packer.io/docs/commands">subcommand</a>, followed by optional parameters. The <a href="https://www.packer.io/docs/commands/build">build</a> subcommand handles the creation of a virtual machine template, as defined by a <a href="https://www.packer.io/docs/templates">Packer template file</a>, and other optional command line arguments / variable files.</p>
+<h3 id="packer-template-format">Packer Template Format</h3>
+<p>A packer template consists of a file that can be written as in <a href="https://www.json.org">JSON</a>, or in HashiCorp&rsquo;s own <a href="https://www.packer.io/guides/hcl">HCL2</a> format. We&rsquo;ll stick with JSON for this article. Below is an empty configuration template, which we&rsquo;ll call <em>windows_vmtemplate.json</em>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{},</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 1: windows_vmtemplate.json 
+
+</p>
+<p>The JSON elements above specify the config of the various components that Packer employs to create and customise a template machine. Along with them at the top of the file is a variables object. This object defines variables that can be passed in at runtime.</p>
+<h3 id="packer-components">Packer Components</h3>
+<p>Packer utilises a number of different components to allow it to interface with different platforms, scripting environments and other tools to create and customise the vm templates that it outputs. The key component types are:</p>
+<ul>
+<li>
+<p><strong>Builders</strong> - these are plugins that are used to interface with the platform that the template is going to be created on. The built-in builders allow Packer to integrate with vSphere, Hyper-V, Azure, AWS, and dozens of other hypervisors and cloud platforms. Additional community supported plugins are available for platforms such as XenServer.</p>
+</li>
+<li>
+<p><strong>Communicators</strong> - these provide connectivity to the template machine while it is being created. Generally this will be SSH for Linux templates, or WinRM for Windows. The configuration for these is stored within the <em>Builders</em> section of a Packer template.</p>
+</li>
+<li>
+<p><strong>Provisioners</strong> - these are components that allow various types of scripts (PowerShell, bash etc.) or configuration management tools such as Ansible or Chef to be used to change the configuration of the template being generated, install applications into it, etc.</p>
+</li>
+<li>
+<p><strong>Post-Processors</strong> - these plugins perform some action on the template once it has been built, such as convert the format of the machine template, import it into a cloud platform and so on.</p>
+</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>That&rsquo;s it for this article - next, we&rsquo;ll start to discuss how to use the vsphere-iso builder, and define the configuration necessary to connect to a vSphere 7 environment as a first step to automating the creation of a Windows Server 2019 VM template.</p>
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Packer and vSphere </h3>
+        
+        
+        <ul>
+            
+            <li><a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 > Connecting to VSphere With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-hardware-with-packer/">Part 3 > Configuring VM Template Hardware With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">Part 4 > Configuring VM Template With Virtual Devices With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 > Provisioning Installation Files With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 > Creating a Windows Answer File for Use With Packer</a></li>
+            
+        </ul>
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>

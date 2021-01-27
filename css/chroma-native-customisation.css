@@ -1,0 +1,13 @@
+/* ************** */
+/* Highlighting Customisation */
+/* ************** */
+/* LineHighlight */ .chroma .hl { display: block; width: 100%; background-color: #404040 }
+.chroma .hl .nt { color: #202020; background-color: #6ab825 }
+/* NameTag */ .chroma .hl .s2 { color: #202020; background-color: #ed9d13 }
+/* LineNumbersTable */ .chroma .hl .lnt { margin-right: 0.4em; padding: 0 0.4em 0 0.4em;color: #888888 }
+/* Punctuation .chroma .hl .p { color: #202020; background-color: #ffffff; }  */
+/* Error .chroma .err { color: #a61717; background-color: #e3d2d2 } */
+
+/* Fix to allow highlighting to span the entire row */
+.chroma .lntable > tbody { display: table; width: 100%; }
+

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chroma-native.css">
+    <link rel="stylesheet" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Connecting to VSphere With Packer</h2>
+        <p class="blogSubTitle">
+            27 Jan 2021 | 
+            Reading time: 4 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+            
+                <span>
+                    | Part 2 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>In this <a href="/posts/2021/01/automating-vsphere-7-vm-templates-with-packer/">previous article</a>, we had an initial look at Packer and the high level components that it employs to automate the creation of VM templates various cloud and hypervisor platforms.</p>
+<p>This time, we&rsquo;ll start to look at some specific configuration to enable us to connect up to a vSphere 7 environment, with a view automating the creation of a Windows Server 2019 VM template.</p>
+<h3 id="connecting-to-vsphere">Connecting to vSphere</h3>
+<p>We&rsquo;ll start by just adding some initial builder config to the empty template we created in the previous article. You can define multiple builders within the same template file, allowing you to create consistent VM templates across different platforms in parallel, but we&rsquo;ll stick to just the one. The builder we will use is <a href="https://www.packer.io/docs/builders/vmware/vsphere-iso">vsphere-iso</a>, which allows for the creation of templates by automating the installation of an OS from an iso file.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="hl"><span class="lnt"> 5
+</span></span><span class="hl"><span class="lnt"> 6
+</span></span><span class="hl"><span class="lnt"> 7
+</span></span><span class="hl"><span class="lnt"> 8
+</span></span><span class="hl"><span class="lnt"> 9
+</span></span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{},</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+<span class="hl">      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;Admin&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;Pa55word&#34;</span>
+</span>    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 2: windows_vmtemplate.json with vCenter configuration added
+
+</p>
+<p>The above configuration defines:</p>
+<ul>
+<li>the builder that will be used (<em>line 5</em>)</li>
+<li>the vCenter that manages the vSphere environment on (<em>line 6</em>)</li>
+<li>that the certificate on the vCenter should not be checked for validity - if the certificate is valid, this line is unnecessary (<em>line 7</em>)</li>
+<li>the username and password to use to connect to the vCenter (<em>lines 8 &amp; 9</em>)</li>
+</ul>
+<h3 id="securing-credentials">Securing Credentials</h3>
+<p>Clearly, it is bad practice to include credentials in a static unencrypted file - so let&rsquo;s pull those out of this configuration, and allow them to be passed to Packer at runtime.</p>
+<p>First, we&rsquo;ll add a couple of entries to the  variables section - adding entries here gives us the option to specify these at runtime as <a href="https://www.packer.io/docs/templates/user-variables">User Variables</a> when we execute Packer.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="hl"><span class="lnt"> 2
+</span></span><span class="hl"><span class="lnt"> 3
+</span></span><span class="hl"><span class="lnt"> 4
+</span></span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+<span class="hl">  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hl">    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+</span>  <span class="p">},</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;Admin&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;Pa55word&#34;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 3: windows_vmtemplate.json with defined User Variables for authentication 
+
+</p>
+<p>Next, we&rsquo;ll update the config in the builders section to reference these variables. Packer includes a <a href="https://www.packer.io/docs/templates/engine">template engine</a> that supports functions enabling values to be injected into configuration elements from a few different sources such as password vaults, environment variables, time, date, and more.</p>
+<p>Template configuration that is generated dynamically in this way is surrounded by double curly braces - in the case of user variables, the <em><strong>user</strong></em> function is called, with the name of the variable to reference. The variable name is encapsulated with backticks (aka grave accent, ASCII code 96), as per lines 11 and 12 below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="hl"><span class="lnt">11
+</span></span><span class="hl"><span class="lnt">12
+</span></span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+<span class="hl">      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `username` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `password` }}&#34;</span>
+</span>    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 4: windows_vmtemplate.json referencing the authentication user variables
+
+</p>
+<p>When Packer is invoked, the username and password variables can now be passed in as parameters on the command line, meaning credentials no longer need to be statically stored within the template.</p>
+<p>There is one last consideration to secure these variables - in order to prevent them from appearing within Packer&rsquo;s logging, we need to add an additional section <a href="https://www.packer.io/docs/templates/user-variables#sensitive-variables">sensitive-variables</a> to the template, and include these two variables as per the below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="hl"><span class="lnt"> 6
+</span></span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+  <span class="p">},</span>
+<span class="hl">  <span class="nt">&#34;sensitive-variables&#34;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&#34;username&#34;</span><span class="p">,</span> <span class="s2">&#34;password&#34;</span> <span class="p">],</span>
+</span>  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `username` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `password` }}&#34;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 5: windows_vmtemplate.json with defined sensitive variables 
+
+</p>
+<h3 id="summary">Summary</h3>
+<p>That covers the basics of configuring  the vsphere-iso builder to connect to a vSphere 7 environment - in the next article, we&rsquo;ll extend the Packer template further by adding additional configuration that defines the virtual hardware to be used by the generated VM template.</p>
+
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Packer and vSphere </h3>
+        
+        
+        <ul>
+            
+            <li><a href="/posts/2021/01/automating-vsphere-7-vm-templates-with-packer/">Part 1 > Automating VSphere 7 VM Templates With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-hardware-with-packer/">Part 3 > Configuring VM Template Hardware With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">Part 4 > Configuring VM Template With Virtual Devices With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 > Provisioning Installation Files With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 > Creating a Windows Answer File for Use With Packer</a></li>
+            
+        </ul>
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>
