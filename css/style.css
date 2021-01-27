@@ -105,6 +105,10 @@ h3.blogListTitle {
     margin-bottom: 0em;
 }
 
+a {
+    color:#245BC1;
+}
+
 a.tag {
     background-color: #ddd ;
     color: #0E1C37;
