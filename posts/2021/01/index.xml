@@ -27,11 +27,11 @@ In this article, we will further expand on our Packer template by configuring th
     </item>
     
     <item>
-      <title>Configuring VM Template With Virtual Devices With Packer</title>
-      <link>https://dacarab.github.io/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/</link>
+      <title>Configuring our VM Template With Virtual Devices Using Packer</title>
+      <link>https://dacarab.github.io/posts/2021/01/configuring-our-vm-template-with-virtual-devices-using-packer/</link>
       <pubDate>Wed, 27 Jan 2021 15:23:26 +0000</pubDate>
       
-      <guid>https://dacarab.github.io/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/</guid>
+      <guid>https://dacarab.github.io/posts/2021/01/configuring-our-vm-template-with-virtual-devices-using-packer/</guid>
       <description>Previously, we started to look at adding OS agnostic virtual resources for the vSphere VM template to use.
 Next, we&amp;rsquo;ll look at further expanding on the Packer template that we are building up by adding virtual devices that the operating system will interactive directly, and will thus require device drivers for.
 Defining the template OS In order to be able to utilise the storage resources that we&amp;rsquo;ve defined, we need to define a virtual storage card - this will look like a piece of hardware to the template machine.</description>
