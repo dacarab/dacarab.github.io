@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chroma-native.css">
+    <link rel="stylesheet" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Provisioning Installation Files With Packer</h2>
+        <p class="blogSubTitle">
+            27 Jan 2021 | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+            
+                <span>
+                    | Part 5 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>In the <a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">previous article</a>, we added the necessary configuration to our Packer template that defines the storage and network adapters that are presented to the VM template machine.</p>
+<p>In this article, we will further expand on our Packer template by configuring the windows installation media as well as presenting the necessary drivers to Windows OS at install time. In a future article, we&rsquo;ll cover off the configuration within the Windows answer file that is needed to point windows setup to the location of these driver files.</p>
+<h3 id="acquiring-the-vmware-tools-installation-files">Acquiring the VMware Tools installation files</h3>
+<p>The latest VMware Tools installation can be downloaded from <a href="https://packages.vmware.com/tools/esx/index.html">packages.vmware.com</a> - however, I tend to prefer to pull them from a fully patched VMHost, as they tend to be more up to date. To do this, we need to start the ssh service on the host we are going to pull the tools from, and then use <em>scp</em> to copy off the installation iso.</p>
+<p>Starting the SSH service can be done through the vCenter web console. Alternatively, using <a href="https://developer.vmware.com/powercli">PowerCLI</a> is fairly straightforward. As an <a href="https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview">OpenSSH implementation</a> is now included with Windows, using scp to pull down the necessary files is also pretty straightforward:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"> <span class="c"># Create a PowerCLI session.</span>
+ <span class="nb">Connect-VIServer</span> 
+ 
+ <span class="c"># Start up the ssh service on the host you intend to pull the tools from</span>
+ <span class="nb">Start-VMHostService</span> <span class="n">-HostService</span> <span class="p">(</span><span class="nb">Get-VMHostService</span> <span class="n">-VMHost</span> <span class="n">vmhostname</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Key</span> <span class="o">-eq</span> <span class="n">tsm-ssh</span><span class="p">)</span>
+
+ <span class="c"># Pull down the Windows VMTools iso to the local machine</span>
+ <span class="n">scp</span> <span class="n">user</span><span class="nv">@vmhostname</span><span class="err">:</span><span class="p">/</span><span class="n">vmimages</span><span class="p">/</span><span class="n">tools-isoimages</span><span class="p">/</span><span class="n">windows</span><span class="p">.</span><span class="n">iso</span> <span class="n">destination_directory</span><span class="p">/</span><span class="n">windows</span><span class="p">.</span><span class="n">iso</span> 
+
+ <span class="c"># Stop the ssh service</span>
+ <span class="nb">Stop-VMHostService</span> <span class="n">-HostService</span> <span class="p">(</span><span class="nb">Get-VMHostService</span> <span class="n">-VMHost</span> <span class="n">vmhostname</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Key</span> <span class="o">-eq</span> <span class="n">tsm-ssh</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Once the ISO is downloaded we can mount it, have a look at /manifest.txt and take note of the vmtoolsd version from the bottom half of the file. This can then be appended to iso file name as a suffix, which makes it easier to keep track of the version of tools that you are using. This does tally with the version returned by running <em><strong>VMwareToolboxCmd.exe -h</strong></em> from within the guest, however the version of the tools displayed in the vCenter web client seems to be in a different format.</p>
+<h3 id="placing-the-installation-files-onto-a-vsphere-datastore">Placing the installation files onto a vSphere datastore</h3>
+<p>There are a couple of different Packer config keys that can be used to provide access to files required during the template OS installation, using either the &ldquo;<em>iso_paths</em>&rdquo; key, which can be pointed at a <a href="https://blogs.vmware.com/vsphere/2020/01/creating-and-using-content-library.html">Content Library</a> or datastore location, or through &ldquo;<em>iso_url / iso_urls</em>&rdquo;, which can be pointed at files available through SMB, http or locally.</p>
+<p>Using the latter technique requires a checksum to be defined for each iso specified, so can be a little fiddly. Also, having to pull the installation media across the network can be quite slow, particularly while you are developing a template and having to run Packer multiple times to fine tune your configuration.</p>
+<p>We&rsquo;ll use a datastore as the source for installation files in our Packer config - you can copy across the iso files to an available datastore through the use of the <strong>Copy-DatastoreItem</strong> PowerCLI cmdlet, or alternatively using the web client.</p>
+<h3 id="referencing-installation-files-in-the-packer-config">Referencing Installation files in the Packer config</h3>
+<p>Now we have the files in an accessible location, we&rsquo;ll update our template with a <a href="https://www.packer.io/docs/templates/user-variables">User Variable</a> and the necessary fields in the builder configuration, to allow the path to both the Windows and VMTools ISOs to be passed in at runtime, as per Lines 13 and 42 below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="hl"><span class="lnt">13
+</span></span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="hl"><span class="lnt">42
+</span></span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;v_cpu_count&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;ram_MB&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;os_disk_size&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;network&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+<span class="hl">    <span class="nt">&#34;iso_paths&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+</span>  <span class="p">},</span>
+  <span class="nt">&#34;sensitive-variables&#34;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&#34;username&#34;</span><span class="p">,</span> <span class="s2">&#34;password&#34;</span> <span class="p">],</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `username` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `password` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datacenter` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `cluster` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datastore` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `folder` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;CPUs&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `v_cpu_count` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;RAM&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `ram_MB` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;guest_os_type&#34;</span><span class="p">:</span> <span class="s2">&#34;windows2019srv_64Guest&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;disk_controller_type&#34;</span><span class="p">:</span> <span class="s2">&#34;pvscsi&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;storage&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;disk_size&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `os_disk_size` }}&#34;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&#34;network_adapters&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;network&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `network` }}&#34;</span><span class="p">,</span>
+          <span class="nt">&#34;network_card&#34;</span><span class="p">:</span> <span class="s2">&#34;vmxnet3&#34;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+<span class="hl">      <span class="nt">&#34;iso_paths&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;{{ user `iso_paths` }}&#34;</span><span class="p">]</span>
+</span>    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 11: windows_vmtemplate.json with iso_paths user variable 
+
+</p>
+<h3 id="accessing-the-storage-driver-at-os-installation-time">Accessing the Storage Driver at OS Installation time</h3>
+<p>As previously mentioned, Windows installation media do not currently contain the drivers for the Paravirtual storage adapter. However these drivers are on the VMTools iso. As we&rsquo;ve added the necessary configuration to the Packer template file to support passing in the iso path at run time, we just need to cover off the necessary settings in the windows answer file.  We&rsquo;ll start looking at this in the next article.</p>
+<h3 id="summary">Summary</h3>
+<p>That&rsquo;s it for this article - in the next in the series, we&rsquo;ll switch focus to the windows answer file that will need to be generated to initially provision the VM template machine.</p>
+
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Packer and vSphere </h3>
+        
+        
+        <ul>
+            
+            <li><a href="/posts/2021/01/automating-vsphere-7-vm-templates-with-packer/">Part 1 > Automating VSphere 7 VM Templates With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 > Connecting to VSphere With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-hardware-with-packer/">Part 3 > Configuring VM Template Hardware With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">Part 4 > Configuring VM Template With Virtual Devices With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 > Creating a Windows Answer File for Use With Packer</a></li>
+            
+        </ul>
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>

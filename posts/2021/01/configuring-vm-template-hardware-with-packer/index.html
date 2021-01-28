@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chroma-native.css">
+    <link rel="stylesheet" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Configuring VM Template Hardware With Packer</h2>
+        <p class="blogSubTitle">
+            27 Jan 2021 | 
+            Reading time: 3 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+            </span>
+            
+                <span>
+                    | Part 3 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>In <a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 of this series</a>, we discussed how to utilise the <a href="https://www.packer.io/docs/builders/vmware/vsphere-iso">vsphere-iso</a> Packer builder component in order to connect up to a vSphere 7 environment.</p>
+<p>In this article, we will continue to expand on that template, and introduce configuration to define the virtual hardware to allocate to the template VM machine.</p>
+<h3 id="adding-additional-vsphere-settings">Adding additional vSphere settings</h3>
+<p>To start with, we&rsquo;ll create <a href="https://www.packer.io/docs/templates/user-variables">User Variables</a> for the cluster, datacentre, datastore and vm folder that it will be deployed to, along with the relevant fields within the vsphere-iso builder:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="hl"><span class="lnt"> 5
+</span></span><span class="hl"><span class="lnt"> 6
+</span></span><span class="hl"><span class="lnt"> 7
+</span></span><span class="hl"><span class="lnt"> 8
+</span></span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="hl"><span class="lnt">18
+</span></span><span class="hl"><span class="lnt">19
+</span></span><span class="hl"><span class="lnt">20
+</span></span><span class="hl"><span class="lnt">21
+</span></span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+<span class="hl">    <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+</span>  <span class="p">},</span>
+  <span class="nt">&#34;sensitive-variables&#34;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&#34;username&#34;</span><span class="p">,</span> <span class="s2">&#34;password&#34;</span> <span class="p">],</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `username` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `password` }}&#34;</span><span class="p">,</span>
+<span class="hl">      <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datacenter` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `cluster` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datastore` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `folder` }}&#34;</span>
+</span>    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 6: windows_vmtemplate.json with virtual resources defined 
+
+</p>
+<p>Again, by employing user variables here, we are able to specify the relevant settings we want to use at runtime, when the Packer template is processed.</p>
+<h3 id="adding-resources-to-the-template-vm">Adding resources to the template vm</h3>
+<p>We also need to add the amount of RAM, vCPUs and disk space that will be used:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="hl"><span class="lnt"> 9
+</span></span><span class="hl"><span class="lnt">10
+</span></span><span class="hl"><span class="lnt">11
+</span></span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="hl"><span class="lnt">22
+</span></span><span class="hl"><span class="lnt">23
+</span></span><span class="hl"><span class="lnt">24
+</span></span><span class="hl"><span class="lnt">25
+</span></span><span class="hl"><span class="lnt">26
+</span></span><span class="hl"><span class="lnt">27
+</span></span><span class="hl"><span class="lnt">28
+</span></span><span class="hl"><span class="lnt">29
+</span></span><span class="hl"><span class="lnt">30
+</span></span><span class="hl"><span class="lnt">31
+</span></span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;variables&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+<span class="hl">    <span class="nt">&#34;v_cpu_count&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;ram_MB&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span><span class="hl">    <span class="nt">&#34;os_disk_size&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+</span>  <span class="p">},</span>
+  <span class="nt">&#34;sensitive-variables&#34;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&#34;username&#34;</span><span class="p">,</span> <span class="s2">&#34;password&#34;</span> <span class="p">],</span>
+  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;vsphere-iso&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;vcenter_server&#34;</span><span class="p">:</span> <span class="s2">&#34;vca.local.example&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;insecure_connection&#34;</span><span class="p">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `username` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;password&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `password` }}&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;datacenter&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datacenter` }}&#34;</span><span class="p">,</span>
+<span class="hl">      <span class="nt">&#34;cluster&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `cluster` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;datastore&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `datastore` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;folder&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `folder` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;CPUs&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `v_cpu_count` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;RAM&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `ram_MB` }}&#34;</span><span class="p">,</span>
+</span><span class="hl">      <span class="nt">&#34;storage&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hl">        <span class="p">{</span>
+</span><span class="hl">          <span class="nt">&#34;disk_size&#34;</span><span class="p">:</span> <span class="s2">&#34;{{ user `os_disk_size` }}&#34;</span>
+</span><span class="hl">        <span class="p">}</span>
+</span><span class="hl">      <span class="p">]</span>
+</span>    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p class="codeCaption">
+
+     Fig 7: windows_vmtemplate.json with additional compute resource config variables 
+
+</p>
+<p>You&rsquo;ll notice that the <strong>storage</strong> key takes an array as a value, to allow for the definition of multiple virtual hard disks as part of the template.</p>
+<h3 id="summary">Summary</h3>
+<p>That wraps up this article - it&rsquo;s a fairly short one, as I&rsquo;m trying to prevent the discussions on Packer from becoming too unwieldy. In the next article, we&rsquo;ll start to look at some specific configuration within the Packer template relevant to the creation of a Windows Server 2019 VM template.</p>
+
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Packer and vSphere </h3>
+        
+        
+        <ul>
+            
+            <li><a href="/posts/2021/01/automating-vsphere-7-vm-templates-with-packer/">Part 1 > Automating VSphere 7 VM Templates With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 > Connecting to VSphere With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/configuring-vm-template-with-virtual-devices-with-packer/">Part 4 > Configuring VM Template With Virtual Devices With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 > Provisioning Installation Files With Packer</a></li>
+            
+            <li><a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 > Creating a Windows Answer File for Use With Packer</a></li>
+            
+        </ul>
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>
