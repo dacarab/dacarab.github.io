@@ -6,7 +6,17 @@
     <description>Recent content on dacarab&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Wed, 27 Jan 2021 15:33:48 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 28 Jan 2021 17:08:27 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Configuring a Windows Answer File for use with Packer</title>
+      <link>https://dacarab.github.io/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/</link>
+      <pubDate>Thu, 28 Jan 2021 17:08:27 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/</guid>
+      <description>In the previous article we discussed the high level changes that we need to make to the sample answer file that comes with the Windows Server installation media, with a view to tailoring it for use with the Packer template file that we are working on.
+In this article, we&amp;rsquo;re going to start to add that configuration by making the necessary changes to the FirstLogonCommands section of the answer file.</description>
+    </item>
+    
     <item>
       <title>Creating a Windows Answer File for Use With Packer</title>
       <link>https://dacarab.github.io/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/</link>

@@ -22,9 +22,9 @@
 <main>
 <article class="post">
     <header>
-        <h2 class="blogTitle">Creating a Windows Answer File for Use With Packer</h2>
+        <h2 class="blogTitle">Configuring a Windows Answer File for use with Packer</h2>
         <p class="blogSubTitle">
-            27 Jan 2021 | 
+            28 Jan 2021 | 
             Reading time: 5 minutes |
             <span class="tags">
                 Tags:  
@@ -38,154 +38,135 @@
             </span>
             
                 <span>
-                    | Part 6 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                    | Part 7 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
                 </span>
             
         </p>
     </header>
 
     <section class="body">
-        <p>In this article, we will cover the initial creation of a Windows answer file, which will be used as part of the Packer template file that we have been putting together in previous articles in this series. Future articles will discuss the additional configuration that will need to be added to this file as we tailor it to our requirements.</p>
-<p>This answer file will automate the initial setup a Windows Server 2019 VM template in a vSphere 7 environment, which Packer will then customise to meet our needs.</p>
-<h3 id="creating-a-windows-answer-file">Creating a Windows answer file</h3>
-<p>When installing Windows, an <a href="https://docs.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/">answer file</a> can be used to automate the installation. There are a few different ways of generating an answer file - if you have fairly complex needs, then it may be the case that installing the <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">Windows ADK</a> in order to tailor an installation to your requirements is the way to go. However, in this series we are looking to handle minimal customisation with the answer file - we&rsquo;ll use other Packer features to make changes to the template machine. We can use the answer file that is included with Windows installation media, and add some tweaks to make it fit our needs.</p>
-<p>An example answer file is stored on the Windows installation media in <code>\support\samples\headlessunattend.xml</code>. The contents haven&rsquo;t changed for a number of releases, and are currently as per below:</p>
+        <p>In the <a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">previous article</a> we discussed the high level changes that we need to make to the sample answer file that comes with the Windows Server installation media, with a view to tailoring it for use with the Packer template file that we are working on.</p>
+<p>In this article, we&rsquo;re going to start to add that configuration by making the necessary changes to the <strong>FirstLogonCommands</strong> section of the answer file.</p>
+<h3 id="configuring-the-firstlogoncommands-section">Configuring the FirstLogonCommands section</h3>
+<p>We&rsquo;ll start by copying the template answer file to a new file, <code>autounattend.xml</code>. We&rsquo;ll strip out the comment at the top, and make a change to <em>FirstLogonCommands</em> section to configure the installation of VM Tools, as well as configuring WinRM to allow Packer to customise the VM template once the OS is installed.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">  1
-</span><span class="lnt">  2
-</span><span class="lnt">  3
-</span><span class="lnt">  4
-</span><span class="lnt">  5
-</span><span class="lnt">  6
-</span><span class="lnt">  7
-</span><span class="lnt">  8
-</span><span class="lnt">  9
-</span><span class="lnt"> 10
-</span><span class="lnt"> 11
-</span><span class="lnt"> 12
-</span><span class="lnt"> 13
-</span><span class="lnt"> 14
-</span><span class="lnt"> 15
-</span><span class="lnt"> 16
-</span><span class="lnt"> 17
-</span><span class="lnt"> 18
-</span><span class="lnt"> 19
-</span><span class="lnt"> 20
-</span><span class="lnt"> 21
-</span><span class="lnt"> 22
-</span><span class="lnt"> 23
-</span><span class="lnt"> 24
-</span><span class="lnt"> 25
-</span><span class="lnt"> 26
-</span><span class="lnt"> 27
-</span><span class="lnt"> 28
-</span><span class="lnt"> 29
-</span><span class="lnt"> 30
-</span><span class="lnt"> 31
-</span><span class="lnt"> 32
-</span><span class="lnt"> 33
-</span><span class="lnt"> 34
-</span><span class="lnt"> 35
-</span><span class="lnt"> 36
-</span><span class="lnt"> 37
-</span><span class="lnt"> 38
-</span><span class="lnt"> 39
-</span><span class="lnt"> 40
-</span><span class="lnt"> 41
-</span><span class="lnt"> 42
-</span><span class="lnt"> 43
-</span><span class="lnt"> 44
-</span><span class="lnt"> 45
-</span><span class="lnt"> 46
-</span><span class="lnt"> 47
-</span><span class="lnt"> 48
-</span><span class="lnt"> 49
-</span><span class="lnt"> 50
-</span><span class="lnt"> 51
-</span><span class="lnt"> 52
-</span><span class="lnt"> 53
-</span><span class="lnt"> 54
-</span><span class="lnt"> 55
-</span><span class="lnt"> 56
-</span><span class="lnt"> 57
-</span><span class="lnt"> 58
-</span><span class="lnt"> 59
-</span><span class="lnt"> 60
-</span><span class="lnt"> 61
-</span><span class="lnt"> 62
-</span><span class="lnt"> 63
-</span><span class="lnt"> 64
-</span><span class="lnt"> 65
-</span><span class="lnt"> 66
-</span><span class="lnt"> 67
-</span><span class="lnt"> 68
-</span><span class="lnt"> 69
-</span><span class="lnt"> 70
-</span><span class="lnt"> 71
-</span><span class="lnt"> 72
-</span><span class="lnt"> 73
-</span><span class="lnt"> 74
-</span><span class="lnt"> 75
-</span><span class="lnt"> 76
-</span><span class="lnt"> 77
-</span><span class="lnt"> 78
-</span><span class="lnt"> 79
-</span><span class="lnt"> 80
-</span><span class="lnt"> 81
-</span><span class="lnt"> 82
-</span><span class="lnt"> 83
-</span><span class="lnt"> 84
-</span><span class="lnt"> 85
-</span><span class="lnt"> 86
-</span><span class="lnt"> 87
-</span><span class="lnt"> 88
-</span><span class="lnt"> 89
-</span><span class="lnt"> 90
-</span><span class="lnt"> 91
-</span><span class="lnt"> 92
-</span><span class="lnt"> 93
-</span><span class="lnt"> 94
-</span><span class="lnt"> 95
-</span><span class="lnt"> 96
-</span><span class="lnt"> 97
-</span><span class="lnt"> 98
-</span><span class="lnt"> 99
-</span><span class="lnt">100
-</span><span class="lnt">101
-</span><span class="lnt">102
-</span><span class="lnt">103
-</span><span class="lnt">104
-</span><span class="lnt">105
-</span><span class="lnt">106
-</span><span class="lnt">107
-</span><span class="lnt">108
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="hl"><span class="lnt"> 5
+</span></span><span class="hl"><span class="lnt"> 6
+</span></span><span class="hl"><span class="lnt"> 7
+</span></span><span class="hl"><span class="lnt"> 8
+</span></span><span class="hl"><span class="lnt"> 9
+</span></span><span class="hl"><span class="lnt">10
+</span></span><span class="hl"><span class="lnt">11
+</span></span><span class="hl"><span class="lnt">12
+</span></span><span class="hl"><span class="lnt">13
+</span></span><span class="hl"><span class="lnt">14
+</span></span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span><span class="lnt">99
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
 <span class="nt">&lt;unattend</span> <span class="na">xmlns=</span><span class="s">&#34;urn:schemas-microsoft-com:unattend&#34;</span><span class="nt">&gt;</span>
-<span class="c">&lt;!--
-</span><span class="c">Sample answer file for headless deployment
-</span><span class="c">  1. Edit answer file to include your information; password, product key, language etc.
-</span><span class="c">  2. Run setup using the /unattend:answer_file command line parameter where answer_file is the path to the answer file
-</span><span class="c">	ex. setup.exe /unattend:\\server\share\unattend.xml
-</span><span class="c">  3. See the Windows Automated Installation Kit for additional guidance on unattended installation and headless deployment
-</span><span class="c">
-</span><span class="c">  NOTE: This sample will wipe disk 0 and clear all data on the disk. 
-</span><span class="c">--&gt;</span>
     <span class="nt">&lt;settings</span> <span class="na">pass=</span><span class="s">&#34;oobeSystem&#34;</span><span class="nt">&gt;</span>
         <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">&#34;Microsoft-Windows-Shell-Setup&#34;</span> <span class="na">processorArchitecture=</span><span class="s">&#34;amd64&#34;</span> <span class="na">publicKeyToken=</span><span class="s">&#34;31bf3856ad364e35&#34;</span> <span class="na">language=</span><span class="s">&#34;neutral&#34;</span> <span class="na">versionScope=</span><span class="s">&#34;nonSxS&#34;</span> <span class="na">xmlns:wcm=</span><span class="s">&#34;http://schemas.microsoft.com/WMIConfig/2002/State&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;FirstLogonCommands&gt;</span>
-                <span class="nt">&lt;SynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span><span class="nt">&gt;</span>
-                    <span class="nt">&lt;CommandLine&gt;</span>netsh advfirewall firewall set rule group=&#34;Remote Desktop&#34; new enable=yes<span class="nt">&lt;/CommandLine&gt;</span>
-                    <span class="nt">&lt;Order&gt;</span>1<span class="nt">&lt;/Order&gt;</span>
-                <span class="nt">&lt;/SynchronousCommand&gt;</span>
-                <span class="nt">&lt;SynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span><span class="nt">&gt;</span>
-                    <span class="nt">&lt;CommandLine&gt;</span>shutdown /L<span class="nt">&lt;/CommandLine&gt;</span>
-                    <span class="nt">&lt;Order&gt;</span>2<span class="nt">&lt;/Order&gt;</span>
-                <span class="nt">&lt;/SynchronousCommand&gt;</span>
-            <span class="nt">&lt;/FirstLogonCommands&gt;</span>
-            <span class="nt">&lt;UserAccounts&gt;</span>
+<span class="hl">            <span class="nt">&lt;FirstLogonCommands&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;SynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span><span class="nt">&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;CommandLine&gt;</span>e:\setup64 /s /delayedstart:60 /v &#34;/qb REBOOT=R&#34;<span class="nt">&lt;/CommandLine&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;Order&gt;</span>1<span class="nt">&lt;/Order&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;/SynchronousCommand&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;SynchronousCommand</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span><span class="nt">&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;CommandLine&gt;</span>winrm set winrm/config/service @{AllowUnencrypted=&#34;true&#34;}<span class="nt">&lt;/CommandLine&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;Order&gt;</span>2<span class="nt">&lt;/Order&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;/SynchronousCommand&gt;</span>
+</span><span class="hl">            <span class="nt">&lt;/FirstLogonCommands&gt;</span>
+</span>            <span class="nt">&lt;UserAccounts&gt;</span>
                 <span class="nt">&lt;AdministratorPassword&gt;</span>
                     <span class="nt">&lt;Value&gt;</span><span class="c">&lt;!-- INSERT ADMINISTRATOR PASSWORD HERE --&gt;</span><span class="nt">&lt;/Value&gt;</span>
                     <span class="nt">&lt;PlainText&gt;</span>true<span class="nt">&lt;/PlainText&gt;</span>
@@ -274,37 +255,22 @@
 </div>
 </div><p class="codeCaption">
 
-     Fig 13: headlessunattend.xml, from the Windows installation media 
+     Fig 14: The default autounattend.xml file updated to install VM Tools added, and configure WinRM for use with Packer
 
 </p>
-<p>There are a few changes that we&rsquo;ll need to make to this file:</p>
-<ol>
-<li>
-<p>We&rsquo;ll configure the <strong>FirstLogonCommands</strong> section of the answer file by removing the commands defined between lines <em>15 - 22</em>, replacing them with commands that will enable the installation of VM Tools, as well as configure WinRM to enable Packer to connect to the template machine while it&rsquo;s being built. This will allow us to run customisation tasks once the initial OS deployment has completed.</p>
-</li>
-<li>
-<p>The <strong>AdministratorPassword</strong> section between lines <em>38 - 41</em> defines the admin password for the operating system - we&rsquo;ll need to configure this, again to allow Packer to run tasks against the VM template as it is being customised.</p>
-</li>
-<li>
-<p>Configure the correct time zone - there can be issues installing VMTools if there is a mismatch between the time zone settings of the VM Host and the template VM.</p>
-</li>
-<li>
-<p>Configure autologon with the administrator password, so that the VM Tools installation and the necessary WinRM configuration tasks can be run.</p>
-</li>
-<li>
-<p>The <strong>InstallFrom</strong> section between lines 75 - 80 will need a couple of changes to define which windows image to install from the installation media - e.g. Standard or Data Centre edition.</p>
-</li>
-<li>
-<p>Configure the ProductKey - for this walkthrough, we are using the evaluation media of Windows Server 2019, so we will be commenting out this key as it is not required.</p>
-</li>
-<li>
-<p>Finally, we&rsquo;ll add configuration to tell Windows setup where to find the Paravirtual Storage and Network controller drivers.</p>
-</li>
-</ol>
-<p>There&rsquo;s a lot of detail to cover here, so we will split coverage of each of these items into future articles.</p>
+<p>Details on how to automate the installation of VMTools can be found on the <a href="https://docs.vmware.com/en/VMware-vSphere/5.5/com.vmware.vmtools.install.doc/GUID-CD6ED7DD-E2E2-48BC-A6B0-E0BB81E05FA3.html">VMware Docs Site</a>. The second command that we&rsquo;ve added configures the WinRM service on the template machine to allow unencrypted connections. It&rsquo;s valuable to understand why this command is necessary, so we&rsquo;ll step away from the template to discuss the use of the Packer <a href="https://www.packer.io/docs/communicators/winrm">WinRM Communicator</a> component, and related security considerations.</p>
+<h3 id="configuring-the-winrm-service-on-the-windows-vm-template">Configuring the WinRM Service on the Windows VM template</h3>
+<p>In order for Packer to be able to customise the Windows VM template once the operating system is installed, it needs to connect using WinRM to copy across files, execute commands etc.</p>
+<p>The <a href="https://www.packer.io/docs/communicators/winrm#examples">WinRm examples</a> section of the Packer documentation discusses configuring a couple of settings on the template machine to enable the use of WinRM - it&rsquo;s worth understanding the implications of these two settings, and whether / why they are required.</p>
+<h3 id="configuring-the-winrm-service-to-accept-to-accept-unencrypted-connections">Configuring the WinRM Service to accept to accept unencrypted connections</h3>
+<p>The first setting is <code>winrm set winrm/config/service @{AllowUnencrypted=&quot;true&quot;}</code> - this is the command that we have included in our answer file above.  By default, WinRM communication takes place over HTTP on TCP port 5985, but is encrypted by NTLM or Kerberos - so commands / files passing across the network are protected from eavesdropping. With this setting configured, unencrypted connections are allowed - the contents of these connections can then be viewed by network sniffing tools such as <a href="https://www.wireshark.org">Wireshark</a>.</p>
+<p>Unfortunately, Packer requires this setting in order to be able to connect to WinRM - so it is a requirement if you wish to use Packer to generate a Windows template. There is the option to configure WinRM on the template machine to <a href="https://docs.microsoft.com/en-us/troubleshoot/windows-client/system-management-components/configure-winrm-for-https">listen on HTTPS</a> on TCP port 5986 - this requires additional configuration, and a certificate to be generated and installed on the template machine, but would effectively mitigate this setting. The steps necessary to carry this out are also covered towards the bottom of the <a href="https://www.packer.io/docs/communicators/winrm#examples">WinRm examples</a> section of the Packer documentation site.</p>
+<p>While this AllowUnencrypted=&ldquo;true&rdquo; setting allows most activity across a WinRM connection to be viewed as it passes across the network in plain text, the one exception by default is authentication - WinRM still will use NTLM or Kerberos to encrypt the authentication of the WinRM session. Packer <em>does</em> support the use of NTLM authentication to WinRM, even on otherwise unencrypted sessions. Depending on your environment topology, and the sensitivity of any customisation elements that are being carried out by Packer, this might mean it&rsquo;s acceptable to run unencrypted connections across HTTP.</p>
+<h3 id="configuring-the-winrm-service-to-allow-basic-authentication">Configuring the WinRM service to allow Basic authentication</h3>
+<p>The second configuration item of note that the Packer WinRM examples section suggests is <code>winrm set winrm/config/service/auth @{Basic=&quot;true&quot;}</code>. This setting allows authentication to occur in plain text across the WinRM connection - allowing credentials to be potentially intercepted as they pass across the network between the Packer machine and the VM template.</p>
+<p>As previously stated, Packer can handle NTLM authentication for WinRM sessions - so this last setting is not required. Using it adds significant risk that template credentials can be intercepted, so is highly recommended not to make use of this option.</p>
 <h3 id="summary">Summary</h3>
-<p>That concludes this article, which has covered the default configuration in the example answer file that comes on the Windows installation media, and the various configuration changes that we&rsquo;ll need to make to it in order to use it with our Packer template.</p>
-<p>In the next article, we&rsquo;ll look at the configuration we&rsquo;ll need to place in the <strong>FirstLogonCommands</strong> section of the answer file - and take a sidestep to discuss the WinRM configuration requirements   to enable Packer to customise the Windows template machine as it is being built, along with the security considerations that need to be considered.</p>
+<p>Hopefully this has shed some light on the required WinRM configuration to enable Packer to interact with a Windows VM template. In the next article, we&rsquo;ll continue with configuring our answer file by adding the Administrator account password, as well as configuring the correct time zone.</p>
 
     </section>
 
@@ -327,7 +293,7 @@
             
             <li><a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 > Provisioning Installation Files With Packer</a></li>
             
-            <li><a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">Part 7 > Configuring a Windows Answer File for use with Packer</a></li>
+            <li><a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 > Creating a Windows Answer File for Use With Packer</a></li>
             
         </ul>
         

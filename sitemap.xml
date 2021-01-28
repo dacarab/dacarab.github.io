@@ -4,52 +4,57 @@
   
   <url>
     <loc>https://dacarab.github.io/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/posts/2021/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://dacarab.github.io/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <loc>https://dacarab.github.io/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/</loc>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/tags/packer/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/series/packer-and-vsphere/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/posts/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/series/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/tags/vsphere/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/tags/windows/</loc>
-    <lastmod>2021-01-27T15:33:48+00:00</lastmod>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://dacarab.github.io/year/</loc>
+    <lastmod>2021-01-28T17:08:27+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dacarab.github.io/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/</loc>
     <lastmod>2021-01-27T15:33:48+00:00</lastmod>
   </url>
   
