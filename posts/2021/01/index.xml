@@ -12,7 +12,7 @@
       <pubDate>Wed, 27 Jan 2021 15:33:48 +0000</pubDate>
       
       <guid>https://dacarab.github.io/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/</guid>
-      <description>In this article, we will cover the initial creation of a Windows answer file, which will be used as part of the Packer template file that we have been putting together in previous articles in this series. Future articles will discuss the additional configuration that will need to be added to this file as we tailor it to meet our needs.
+      <description>In this article, we will cover the initial creation of a Windows answer file, which will be used as part of the Packer template file that we have been putting together in previous articles in this series. Future articles will discuss the additional configuration that will need to be added to this file as we tailor it to our requirements.
 This answer file will automate the initial setup a Windows Server 2019 VM template in a vSphere 7 environment, which Packer will then customise to meet our needs.</description>
     </item>
     
