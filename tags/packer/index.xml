@@ -6,7 +6,18 @@
     <description>Recent content in Packer on dacarab&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Thu, 28 Jan 2021 17:08:27 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/tags/packer/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 29 Jan 2021 08:28:40 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/tags/packer/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Configuring the Administrator Password, Auto Logon and Time Zone</title>
+      <link>https://dacarab.github.io/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/</link>
+      <pubDate>Fri, 29 Jan 2021 08:28:40 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/</guid>
+      <description>In the last article in this series, we covered the answer file configuration and security considerations for configuring the WinRM service on the Windows template machine that we are automating through the use of Packer.
+In this article, we will look at configuring the answer file to set the Administrator password and the time zone during the initial setup of the windows template VM.
+Understanding how the Administrator password is stored in the answer file The admin account password needs to be configured in a couple of places, firstly to actually define what it is, as well as to enable auto logon during initial OS setup, in order to automate the installation of VM Tools.</description>
+    </item>
+    
     <item>
       <title>Configuring a Windows Answer File for use with Packer</title>
       <link>https://dacarab.github.io/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/</link>

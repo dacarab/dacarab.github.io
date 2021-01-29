@@ -28,6 +28,35 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/">Part 8 of Packer and vSphere: Configuring the Administrator Password, Auto Logon and Time Zone</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>29 Jan 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+                    <a class="tag" href="/tags/windows">Windows</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In the last article in this series, we covered the answer file configuration and security considerations for configuring the WinRM service on the Windows template machine that we are automating through the use of Packer.
+In this article, we will look at configuring the answer file to set the Administrator password and the time zone during the initial setup of the windows template VM.
+Understanding how the Administrator password is stored in the answer file The admin account password needs to be configured in a couple of places, firstly to actually define what it is, as well as to enable auto logon during initial OS setup, in order to automate the installation of VM Tools.
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">Part 7 of Packer and vSphere: Configuring a Windows Answer File for use with Packer</a>
             </h3>
         
@@ -130,33 +159,6 @@ In this article, we will further expand on our Packer template by configuring th
         Previously, we started to look at adding OS agnostic virtual resources for the vSphere VM template to use.
 Next, we&rsquo;ll look at further expanding on the Packer template that we are building up by adding virtual devices that the operating system will interactive directly, and will thus require device drivers for.
 Defining the template OS In order to be able to utilise the storage resources that we&rsquo;ve defined, we need to define a virtual storage card - this will look like a piece of hardware to the template machine.
-    </div>
-</article>
-    
-        <article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/configuring-vm-template-hardware-with-packer/">Part 3 of Packer and vSphere: Configuring VM Template Hardware With Packer</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>27 Jan 2021</time> | 
-            Reading time: 3 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        In Part 2 of this series, we discussed how to utilise the vsphere-iso Packer builder component in order to connect up to a vSphere 7 environment.
-In this article, we will continue to expand on that template, and introduce configuration to define the virtual hardware to allocate to the template VM machine.
-Adding additional vSphere settings To start with, we&rsquo;ll create User Variables for the cluster, datacentre, datastore and vm folder that it will be deployed to, along with the relevant fields within the vsphere-iso builder:
     </div>
 </article>
     
