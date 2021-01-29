@@ -86,7 +86,7 @@ div.blogListSubtitle {
     margin-bottom: 0.5em;
 }
 
-div.blogListSummary > p {
+div.blogListSummary {
     /* font-style: italic; */
     /* font-weight: bold; */
     font-size: 90%;
