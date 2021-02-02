@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>2021/02 on dacarab&#39;s blog</title>
+    <link>https://dacarab.github.io/posts/2021/02/</link>
+    <description>Recent content in 2021/02 on dacarab&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-gb</language><atom:link href="https://dacarab.github.io/posts/2021/02/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defining the Windows Edition to Install</title>
+      <link>https://dacarab.github.io/posts/2021/02/defining-the-windows-edition-to-install/</link>
+      <pubDate>Tue, 02 Feb 2021 12:16:58 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/02/defining-the-windows-edition-to-install/</guid>
+      <description>Previously, we covered adding additional configuration to our Windows answer file that defined the Administrator password, auto logon and time zone settings on our template VM.
+In this article, we continue to build out our answer file by covering how to identify the necessary information from the Windows installation media to select the edition of Windows that we want to install, and then adding this info to the appropriate section of the Windows answer file.</description>
+    </item>
+    
+  </channel>
+</rss>
