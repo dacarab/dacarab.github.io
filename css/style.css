@@ -94,6 +94,10 @@ div.blogListSummary {
     margin-bottom: 1em;
 }
 
+div.tagIcons > a {
+    color: #fff;
+}
+
 h3 {
     color: #2e6cdf;
     margin-bottom: 0em;
