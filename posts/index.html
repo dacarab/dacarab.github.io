@@ -28,6 +28,50 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/02/configuring-driver-paths-within-the-windows-answer-file/">Part 10 of Packer and vSphere: Configuring Driver Paths within the Windows Answer File</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time> 5 Feb 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+                    <a class="tag" href="/tags/windows">Windows</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        <hr>
+<p><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Last time</a>, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.</p>
+<p>In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.</p>
+    </div>
+    <div class="tagIcons">
+        
+        <a href="/tags/vsphere">
+            <img src="/images/vSphere.jpg" width="50" height="50" alt="vSphere">
+        </a>
+        
+        <a href="/tags/packer">
+            <img src="/images/Packer.jpg" width="50" height="50" alt="Packer">
+        </a>
+        
+        <a href="/tags/windows">
+            <img src="/images/Windows.jpg" width="50" height="50" alt="Windows">
+        </a>
+        
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/02/defining-the-windows-edition-to-install/">Part 9 of Packer and vSphere: Defining the Windows Edition to Install</a>
             </h3>
         
@@ -191,43 +235,6 @@ This answer file will automate the initial setup a Windows Server 2019 VM templa
         
         <a href="/tags/windows">
             <img src="/images/Windows.jpg" width="50" height="50" alt="Windows">
-        </a>
-        
-    </div>
-</article>
-    
-        <article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 of Packer and vSphere: Provisioning Installation Files With Packer</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>27 Jan 2021</time> | 
-            Reading time: 5 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        In the previous article, we added the necessary configuration to our Packer template that defines the storage and network adapters that are presented to the VM template machine.
-In this article, we will further expand on our Packer template by configuring the windows installation media as well as presenting the necessary drivers to Windows OS at install time. In a future article, we&rsquo;ll cover off the configuration within the Windows answer file that is needed to point windows setup to the location of these driver files.
-    </div>
-    <div class="tagIcons">
-        
-        <a href="/tags/vsphere">
-            <img src="/images/vSphere.jpg" width="50" height="50" alt="vSphere">
-        </a>
-        
-        <a href="/tags/packer">
-            <img src="/images/Packer.jpg" width="50" height="50" alt="Packer">
         </a>
         
     </div>

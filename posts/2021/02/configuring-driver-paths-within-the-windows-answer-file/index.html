@@ -22,9 +22,9 @@
 <main>
 <article class="post">
     <header>
-        <h2 class="blogTitle">Defining the Windows Edition to Install</h2>
+        <h2 class="blogTitle">Configuring Driver Paths within the Windows Answer File</h2>
         <p class="blogSubTitle">
-             2 Feb 2021 | 
+             5 Feb 2021 | 
             Reading time: 5 minutes |
             <span class="tags">
                 Tags:  
@@ -38,134 +38,121 @@
             </span>
             
                 <span>
-                    | Part 9 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
+                    | Part 10 of <a href="/series/packer-and-vsphere">Packer and vSphere</a> 
                 </span>
             
         </p>
     </header>
 
     <section class="body">
-        <p><a href="/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/">Previously</a>, we covered adding additional configuration to our Windows answer file that defined the Administrator password, auto logon and time zone settings on our template VM.</p>
-<p>In this article, we continue to build out our answer file by covering how to identify the necessary information from the Windows installation media to select the edition of Windows that we want to install, and then adding this info to the appropriate section of the Windows answer file.</p>
-<h3 id="selecting-the-edition-of-windows-to-install">Selecting the edition of Windows to install</h3>
-<p>Windows server comes in a few different editions such as Standard and Datacentre, as well as the option to deploy the OS with a GUI, i.e. the &ldquo;Desktop Experience&rdquo; option, or without. The combination of edition and whether to use desktop mode or not equate to individual images on the installation media - so we need to define which image we are going to install as part of the VM template creation.</p>
-<p>The easiest way to do this is to use PowerShell to view the contents of the <em>install.wim</em> file on the installation media, determine the image index of the flavour of windows that you want to install, and then define that in the <em>unattend.xml</em> file.</p>
-<p>To achieve this:</p>
-<ol>
-<li>Launch a PowerShell console in &ldquo;Administrator&rdquo; mode.</li>
-<li>Mount a copy of the installation media iso that you are using to create the VM template (e.g. Windows Server 2019 Evaluation)</li>
-<li>Run <code>Get-WindowsImage</code> against the image file on your mounted installation media - if this were mounted on the <strong>d:\</strong> drive, then the command would be:</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">Get-WindowsImage</span> <span class="n">-ImagePath</span> <span class="n">d:</span><span class="p">\</span><span class="n">sources</span><span class="p">\</span><span class="n">install</span><span class="p">.</span><span class="n">wim</span> <span class="p">|</span> <span class="nb">Select </span><span class="n">ImageIndex</span><span class="p">,</span> <span class="n">ImageName</span>
-
-<span class="n">ImageIndex</span> <span class="n">ImageName</span>
-<span class="p">----------</span> <span class="p">---------</span>
-         <span class="n">1</span> <span class="n">Windows</span> <span class="n">Server</span> <span class="n">2019</span> <span class="n">Standard</span> <span class="n">Evaluation</span>
-         <span class="n">2</span> <span class="n">Windows</span> <span class="n">Server</span> <span class="n">2019</span> <span class="n">Standard</span> <span class="n">Evaluation</span> <span class="p">(</span><span class="n">Desktop</span> <span class="n">Experience</span><span class="p">)</span>
-         <span class="n">3</span> <span class="n">Windows</span> <span class="n">Server</span> <span class="n">2019</span> <span class="n">Datacenter</span> <span class="n">Evaluation</span>
-         <span class="n">4</span> <span class="n">Windows</span> <span class="n">Server</span> <span class="n">2019</span> <span class="n">Datacenter</span> <span class="n">Evaluation</span> <span class="p">(</span><span class="n">Desktop</span> <span class="n">Experience</span><span class="p">)</span>
-</code></pre></div><p>For this template, we are going to use the Standard edition without the Desktop Experience option, which equates to ImageIndex 1. Now we know the index we are interested in deploying, we can add it to the <em>unattend.xml</em> file that we are building.</p>
+        <hr>
+<p><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Last time</a>, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.</p>
+<p>In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.</p>
+<h3 id="the-paravirtual-storage-driver-files">The Paravirtual storage driver files</h3>
+<p>The PVSCSI driver exists on the VMTools installation media under <code>\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win8\amd64\</code>.  As we are already presenting the VMTools iso file to the OS at install time, this path will already be accessible to Windows setup during the OS installation.</p>
+<p>To let setup know about this path to the storage drivers, we can uncomment out the <strong>Microsoft-Windows-PnpCustomizationsWinPE</strong> section of the answer file, and update the <em>Path</em> value to point to this location.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
-</span><span class="lnt">45
-</span><span class="lnt">46
-</span><span class="lnt">47
-</span><span class="lnt">48
-</span><span class="lnt">49
-</span><span class="lnt">50
-</span><span class="lnt">51
-</span><span class="lnt">52
-</span><span class="lnt">53
-</span><span class="lnt">54
-</span><span class="lnt">55
-</span><span class="lnt">56
-</span><span class="lnt">57
-</span><span class="lnt">58
-</span><span class="lnt">59
-</span><span class="lnt">60
-</span><span class="lnt">61
-</span><span class="lnt">62
-</span><span class="lnt">63
-</span><span class="lnt">64
-</span><span class="lnt">65
-</span><span class="lnt">66
-</span><span class="lnt">67
-</span><span class="hl"><span class="lnt">68
-</span></span><span class="hl"><span class="lnt">69
-</span></span><span class="lnt">70
-</span><span class="lnt">71
-</span><span class="lnt">72
-</span><span class="lnt">73
-</span><span class="lnt">74
-</span><span class="lnt">75
-</span><span class="hl"><span class="lnt">76
-</span></span><span class="lnt">77
-</span><span class="lnt">78
-</span><span class="lnt">79
-</span><span class="lnt">80
-</span><span class="lnt">81
-</span><span class="lnt">82
-</span><span class="lnt">83
-</span><span class="lnt">84
-</span><span class="lnt">85
-</span><span class="lnt">86
-</span><span class="lnt">87
-</span><span class="lnt">88
-</span><span class="lnt">89
-</span><span class="lnt">90
-</span><span class="lnt">91
-</span><span class="lnt">92
-</span><span class="lnt">93
-</span><span class="lnt">94
-</span><span class="lnt">95
-</span><span class="lnt">96
-</span><span class="lnt">97
-</span><span class="lnt">98
-</span><span class="lnt">99
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="hl"><span class="lnt"> 91
+</span></span><span class="hl"><span class="lnt"> 92
+</span></span><span class="hl"><span class="lnt"> 93
+</span></span><span class="hl"><span class="lnt"> 94
+</span></span><span class="hl"><span class="lnt"> 95
+</span></span><span class="hl"><span class="lnt"> 96
+</span></span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
@@ -235,16 +222,16 @@
                     <span class="nt">&lt;WillShowUI&gt;</span>Never<span class="nt">&lt;/WillShowUI&gt;</span>
                     <span class="nt">&lt;InstallFrom&gt;</span>
                         <span class="nt">&lt;MetaData</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span><span class="nt">&gt;</span>
-<span class="hl">                            <span class="nt">&lt;Key&gt;</span>/IMAGE/INDEX<span class="nt">&lt;/Key&gt;</span>
-</span><span class="hl">                            <span class="nt">&lt;Value&gt;</span>1<span class="nt">&lt;/Value&gt;</span>
-</span>                        <span class="nt">&lt;/MetaData&gt;</span>
+                            <span class="nt">&lt;Key&gt;</span>/IMAGE/INDEX<span class="nt">&lt;/Key&gt;</span>
+                            <span class="nt">&lt;Value&gt;</span>1<span class="nt">&lt;/Value&gt;</span>
+                        <span class="nt">&lt;/MetaData&gt;</span>
                     <span class="nt">&lt;/InstallFrom&gt;</span>
                 <span class="nt">&lt;/OSImage&gt;</span>
             <span class="nt">&lt;/ImageInstall&gt;</span>
             <span class="nt">&lt;UserData&gt;</span>
                 <span class="nt">&lt;ProductKey&gt;</span>
-<span class="hl">                    <span class="c">&lt;!--&lt;Key&gt;REPLACE WITH PRODUCT KEY&lt;/Key&gt;--&gt;</span>
-</span>                    <span class="nt">&lt;WillShowUI&gt;</span>Never<span class="nt">&lt;/WillShowUI&gt;</span>
+                    <span class="c">&lt;!--&lt;Key&gt;REPLACE WITH PRODUCT KEY&lt;/Key&gt;--&gt;</span>
+                    <span class="nt">&lt;WillShowUI&gt;</span>Never<span class="nt">&lt;/WillShowUI&gt;</span>
                 <span class="nt">&lt;/ProductKey&gt;</span>
                 <span class="nt">&lt;AcceptEula&gt;</span>true<span class="nt">&lt;/AcceptEula&gt;</span>
             <span class="nt">&lt;/UserData&gt;</span>
@@ -256,30 +243,49 @@
             <span class="nt">&lt;/SetupUILanguage&gt;</span>
             <span class="nt">&lt;UILanguage&gt;</span>en-us<span class="c">&lt;!-- UPDATE WITH APPROPRIATE LANGUAGE --&gt;</span><span class="nt">&lt;/UILanguage&gt;</span>
         <span class="nt">&lt;/component&gt;</span>
-<span class="c">&lt;!--
-</span><span class="c">        &lt;component name=&#34;Microsoft-Windows-PnpCustomizationsWinPE&#34; processorArchitecture=&#34;amd64&#34; publicKeyToken=&#34;31bf3856ad364e35&#34; language=&#34;neutral&#34; versionScope=&#34;nonSxS&#34; xmlns:wcm=&#34;http://schemas.microsoft.com/WMIConfig/2002/State&#34; xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34;&gt;
-</span><span class="c">            &lt;DriverPaths&gt;
-</span><span class="c">                &lt;PathAndCredentials wcm:action=&#34;add&#34; wcm:keyValue=&#34;1&#34;&gt;
-</span><span class="c">                    &lt;Path&gt;INSERT DRIVER PATH&lt;/Path&gt;
-</span><span class="c">                &lt;/PathAndCredentials&gt;
-</span><span class="c">            &lt;/DriverPaths&gt;
-</span><span class="c">        &lt;/component&gt;
-</span><span class="c">--&gt;</span>
+        <span class="nt">&lt;component</span> <span class="na">name=</span><span class="s">&#34;Microsoft-Windows-PnpCustomizationsWinPE&#34;</span> <span class="na">processorArchitecture=</span><span class="s">&#34;amd64&#34;</span> <span class="na">publicKeyToken=</span><span class="s">&#34;31bf3856ad364e35&#34;</span> <span class="na">language=</span><span class="s">&#34;neutral&#34;</span> <span class="na">versionScope=</span><span class="s">&#34;nonSxS&#34;</span> <span class="na">xmlns:wcm=</span><span class="s">&#34;http://schemas.microsoft.com/WMIConfig/2002/State&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;DriverPaths&gt;</span>
+<span class="hl">                <span class="nt">&lt;PathAndCredentials</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span> <span class="na">wcm:keyValue=</span><span class="s">&#34;1&#34;</span><span class="nt">&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;Path&gt;</span>E:\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win8\amd64\<span class="nt">&lt;/Path&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;/PathAndCredentials&gt;</span>
+</span><span class="hl">                <span class="nt">&lt;PathAndCredentials</span> <span class="na">wcm:action=</span><span class="s">&#34;add&#34;</span> <span class="na">wcm:keyValue=</span><span class="s">&#34;2&#34;</span><span class="nt">&gt;</span>
+</span><span class="hl">                    <span class="nt">&lt;Path&gt;</span>a:\
+</span><span class="hl">                <span class="nt">&lt;/PathAndCredentials&gt;</span>
+</span>            <span class="nt">&lt;/DriverPaths&gt;</span>
+        <span class="nt">&lt;/component&gt;</span>
     <span class="nt">&lt;/settings&gt;</span>
 <span class="nt">&lt;/unattend&gt;</span>
 </code></pre></td></tr></table>
 </div>
 </div><p class="codeCaption">
 
-     Fig 16: autounattend.xml file with defined installation media.
+     Fig 17: autounattend.xml file with defined paths to additional drivers.
 
 </p>
-<p>As you can see above, we&rsquo;ve changed <em>line 64</em> to specify <em>/IMAGE/INDEX</em> as the key instead of <em>/IMAGE/NAME</em> that it was set to before. It is much easier to work with the index of images rather than the name  - the name value that the answer file expects is not the same as the value that is displayed by <em>Get-WindowsImage</em>, <em>Dism</em>, or other tools, and so is harder to determine.</p>
-<p>On <em>line 65</em>, we&rsquo;ve changed the value to 1 - which corresponds to the Standard edition evaluation that we are looking to install.</p>
-<p>We&rsquo;ve also commented out the Product Key entry on <em>line 76</em>. As we are using the evaluation version of windows, leaving this value in place will throw up an error during OS installation. If you are deploying from volume license media, you can add in the relevant key. The list of valid KMS client keys can be found <a href="https://docs.microsoft.com/en-us/windows-server/get-started/kmsclientkeys">here</a>.</p>
-<h3 id="summary">Summary</h3>
-<p>In the next article, we will finish off configuring our Windows answer file by adding the necessary configuration to point Windows setup at the required storage driver that the VM template will need to access the presented virtual disk. After that, we will look at finalising the Packer config by defining a variables file to simplify the execution of the Packer template.</p>
+<p>We&rsquo;ve actually added two different driver paths here - the first one on <em>line 92</em> points to the location of the storage drivers on the VMTools installation media.</p>
+<p>The second one points to &ldquo;a:&quot; - although we are not currently planning on making additional drivers available here for this walkthrough, adding this path does give us the option of mounting additional drivers on a virtual floppy driver (with some additional configuration to our Packer template file) - adding this path in the answer file now is fairly trivial, and may save us a bit of work in the future.</p>
+<h3 id="a-note-about-making-other-drivers-available">A note about making other drivers available</h3>
+<p>We&rsquo;ve mentioned before that we are using the VMXNET3 virtual network adapter with our windows template. We don&rsquo;t need to make the driver for this available to Windows during installation, as it is included as part of the VMTools installation that we are already carrying out, and so will be installed then. However, you may come across circumstances where you want to get hold of a copy of this or additional virtual hardware driver files for troubleshooting or other purposes.</p>
+<p>All the drivers for the virtual hardware presented to the Windows operating system by vSphere are stored in the msi file that is compressed within the setup files. In order to extract any of these other drivers, you can run the following within a PowerShell session while you have the iso tools mounted on a guest windows vm (in this instance, mounted on the D: drive):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"> <span class="c"># Extract the msi installer to your current %TEMP% folder</span>
+ <span class="nb">PS </span><span class="n">D:</span><span class="p">\&gt;</span> <span class="p">.\</span><span class="n">setup</span><span class="p">.</span><span class="n">exe</span> <span class="n">-x</span>
 
+ <span class="c">#  Run an administrative install to extract the setup files</span>
+ <span class="nb">PS </span><span class="n">D:</span><span class="p">\&gt;</span> <span class="n">msiexec</span> <span class="n">-a</span> <span class="s2">&#34;$env:Temp\{2C55907B-00D2-48F2-BFD0-E000FB652C6F}~setup\Vmware Tools64.msi&#34;</span> <span class="n">TARGETDIR</span><span class="p">=</span><span class="n">C:</span><span class="p">\</span><span class="n">DESTINATION_DIR</span><span class="s2">&#34;
+</span></code></pre></td></tr></table>
+</div>
+</div><p>After running the above, you will be able to copy out any of the drivers you want from the DESTINATION_DIR directory you specified above, and make them available at OS installation time. You will need to also add some additional <a href="https://www.packer.io/docs/builders/vmware/vsphere-iso#floppy-configuration">Floppy Configuration</a> to your Packer template - we are going to have a look at those settings when we walk through running our completed Packer template.</p>
+<h3 id="summary">Summary</h3>
+<p>We&rsquo;ve covered off the last of the configuration changes that we needed to make to the sample answer file that comes with the Windows installation media. In the next article, we&rsquo;ll make the some of the final configuration additions needed in our Packer template file to process the answer file, and enable customisation of the Windows OS once it is installed.</p>
     </section>
 
     
@@ -307,7 +313,7 @@
             
             <li><a href="/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/">Part 8 > Configuring the Administrator Password, Auto Logon and Time Zone</a></li>
             
-            <li><a href="/posts/2021/02/configuring-driver-paths-within-the-windows-answer-file/">Part 10 > Configuring Driver Paths within the Windows Answer File</a></li>
+            <li><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Part 9 > Defining the Windows Edition to Install</a></li>
             
         </ul>
         
