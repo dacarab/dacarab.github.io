@@ -45,8 +45,7 @@
     </header>
 
     <section class="body">
-        <hr>
-<p><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Last time</a>, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.</p>
+        <p><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Last time</a>, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.</p>
 <p>In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.</p>
 <h3 id="the-paravirtual-storage-driver-files">The Paravirtual storage driver files</h3>
 <p>The PVSCSI driver exists on the VMTools installation media under <code>\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win8\amd64\</code>.  As we are already presenting the VMTools iso file to the OS at install time, this path will already be accessible to Windows setup during the OS installation.</p>

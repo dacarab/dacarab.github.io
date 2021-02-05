@@ -13,8 +13,7 @@
       <pubDate>Fri, 05 Feb 2021 10:09:41 +0000</pubDate>
       
       <guid>https://dacarab.github.io/posts/2021/02/configuring-driver-paths-within-the-windows-answer-file/</guid>
-      <description>&lt;hr&gt;
-&lt;p&gt;&lt;a href=&#34;https://dacarab.github.io/posts/2021/02/defining-the-windows-edition-to-install/&#34;&gt;Last time&lt;/a&gt;, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.&lt;/p&gt;
+      <description>&lt;p&gt;&lt;a href=&#34;https://dacarab.github.io/posts/2021/02/defining-the-windows-edition-to-install/&#34;&gt;Last time&lt;/a&gt;, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.&lt;/p&gt;
 &lt;p&gt;In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.&lt;/p&gt;</description>
     </item>
     
