@@ -7,13 +7,23 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language><atom:link href="https://dacarab.github.io/posts/2021/02/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Configuring Packer to Use an Answer File</title>
+      <link>https://dacarab.github.io/posts/2021/02/configuring-packer-to-use-an-answer-file/</link>
+      <pubDate>Fri, 12 Feb 2021 10:53:28 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/02/configuring-packer-to-use-an-answer-file/</guid>
+      <description>In Part 10 of this series, we walked through the additional configuration that needs to be added to the sample Windows answer file that we have been extending, in order to enable setup to install the Paravirtual storage driver.
+We are stepping away from the answer file now, to add some of the final touches to our Packer template file. Now that we have a Windows answer file in place, we can reference it from Packer, as well as set the WinRM credentials that will be needed to automate the build of our Windows 2019 vSphere template.</description>
+    </item>
+    
+    <item>
       <title>Configuring Driver Paths within the Windows Answer File</title>
       <link>https://dacarab.github.io/posts/2021/02/configuring-driver-paths-within-the-windows-answer-file/</link>
       <pubDate>Fri, 05 Feb 2021 10:09:41 +0000</pubDate>
       
       <guid>https://dacarab.github.io/posts/2021/02/configuring-driver-paths-within-the-windows-answer-file/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;https://dacarab.github.io/posts/2021/02/defining-the-windows-edition-to-install/&#34;&gt;Last time&lt;/a&gt;, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.&lt;/p&gt;
-&lt;p&gt;In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.&lt;/p&gt;</description>
+&lt;p&gt;In this article, we finish off our answer file configuration by adding the necessary settings to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.&lt;/p&gt;</description>
     </item>
     
     <item>

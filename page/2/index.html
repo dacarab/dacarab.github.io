@@ -29,6 +29,49 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 of Packer and vSphere: Creating a Windows Answer File for Use With Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>27 Jan 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+                    <a class="tag" href="/tags/windows">Windows</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In this article, we will cover the initial creation of a Windows answer file, which will be used as part of the Packer template file that we have been putting together in previous articles in this series. Future articles will discuss the additional configuration that will need to be added to this file as we tailor it to our requirements.
+This answer file will automate the initial setup a Windows Server 2019 VM template in a vSphere 7 environment, which Packer will then customise to meet our needs.
+    </div>
+    <div class="tagIcons">
+        
+        <a href="/tags/vsphere">
+            <img src="/images/vSphere.jpg" width="50" height="50" alt="vSphere">
+        </a>
+        
+        <a href="/tags/packer">
+            <img src="/images/Packer.jpg" width="50" height="50" alt="Packer">
+        </a>
+        
+        <a href="/tags/windows">
+            <img src="/images/Windows.jpg" width="50" height="50" alt="Windows">
+        </a>
+        
+    </div>
+</article>
+
+<article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/01/provisioning-installation-files-with-packer/">Part 5 of Packer and vSphere: Provisioning Installation Files With Packer</a>
             </h3>
         
@@ -175,44 +218,6 @@ This time, we&rsquo;ll start to look at some specific configuration to enable us
     </div>
 </article>
 
-<article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/automating-vsphere-7-vm-templates-with-packer/">Part 1 of Packer and vSphere: Automating VSphere 7 VM Templates With Packer</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>27 Jan 2021</time> | 
-            Reading time: 3 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        <p>In this article, we&rsquo;ll have an initial look at Packer, briefly discuss the high level components that make up Packer, and have a quick look at the format of an empty Packer Template.</p>
-<p><a href="https://packer.io">Packer</a> is one of a number of automation tools created by HashiCorp. It is used to automate the creation of virtual machine templates, for use on one or more virtualisation or cloud platforms. These templates can then be used to provision server environments.
-​​</p>
-    </div>
-    <div class="tagIcons">
-        
-        <a href="/tags/vsphere">
-            <img src="/images/vSphere.jpg" width="50" height="50" alt="vSphere">
-        </a>
-        
-        <a href="/tags/packer">
-            <img src="/images/Packer.jpg" width="50" height="50" alt="Packer">
-        </a>
-        
-    </div>
-</article>
-
 
 
 <ul class="pagination">
@@ -228,11 +233,14 @@ This time, we&rsquo;ll start to look at some specific configuration to enable us
   <li class="page-item active">
     <a class="page-link" href="/page/2/">2</a>
   </li>
-  <li class="page-item disabled">
-    <a  class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  <li class="page-item">
+    <a class="page-link" href="/page/3/">3</a>
   </li>
   <li class="page-item">
-    <a href="/page/2/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+    <a href="/page/3/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/page/3/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
   </li>
 </ul>
 

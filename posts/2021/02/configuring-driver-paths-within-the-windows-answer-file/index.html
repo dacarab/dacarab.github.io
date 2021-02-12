@@ -46,9 +46,9 @@
 
     <section class="body">
         <p><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Last time</a>, we looked at how to go about choosing the appropriate Windows edition image from within the WIM image on the installation media, and defining this in the answer file that we are working with.</p>
-<p>In this article, we finish off our answer file configuration by adding the necessary configuration to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.</p>
+<p>In this article, we finish off our answer file configuration by adding the necessary settings to point to the locations of the Paravirtual Storage and network drivers that will be required by Windows setup.</p>
 <h3 id="the-paravirtual-storage-driver-files">The Paravirtual storage driver files</h3>
-<p>The PVSCSI driver exists on the VMTools installation media under <code>\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win8\amd64\</code>.  As we are already presenting the VMTools iso file to the OS at install time, this path will already be accessible to Windows setup during the OS installation.</p>
+<p>The PVSCSI driver exists on the VMTools installation media under <code>\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win8\amd64\</code>.  As we are already presenting the VMTools iso file at install time, this path will already be accessible to Windows setup during the OS installation.</p>
 <p>To let setup know about this path to the storage drivers, we can uncomment out the <strong>Microsoft-Windows-PnpCustomizationsWinPE</strong> section of the answer file, and update the <em>Path</em> value to point to this location.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -262,9 +262,9 @@
 
 </p>
 <p>We&rsquo;ve actually added two different driver paths here - the first one on <em>line 92</em> points to the location of the storage drivers on the VMTools installation media.</p>
-<p>The second one points to &ldquo;a:&quot; - although we are not currently planning on making additional drivers available here for this walkthrough, adding this path does give us the option of mounting additional drivers on a virtual floppy driver (with some additional configuration to our Packer template file) - adding this path in the answer file now is fairly trivial, and may save us a bit of work in the future.</p>
-<h3 id="a-note-about-making-other-drivers-available">A note about making other drivers available</h3>
-<p>We&rsquo;ve mentioned before that we are using the VMXNET3 virtual network adapter with our windows template. We don&rsquo;t need to make the driver for this available to Windows during installation, as it is included as part of the VMTools installation that we are already carrying out, and so will be installed then. However, you may come across circumstances where you want to get hold of a copy of this or additional virtual hardware driver files for troubleshooting or other purposes.</p>
+<p>The second one points to <code>a:\</code> - although we are not currently planning on making additional drivers available here for this walkthrough, adding this path does give us the option of mounting additional drivers on a virtual floppy driver (with some additional configuration to our Packer template file) in the future - adding this path to the answer file now is fairly trivial, and may save us a bit of work further down the road.</p>
+<h3 id="making-other-vsphere-drivers-available">Making other vSphere drivers available</h3>
+<p>We&rsquo;ve mentioned before that we are using the VMXNET3 virtual network adapter with our windows template. We don&rsquo;t need to make the driver for this available to Windows during setup, as it is included as part of the VMTools installation that we are already carrying out, and so will be installed then. However, you may come across circumstances where you want to get hold of a copy of this or additional virtual hardware driver files for troubleshooting or other purposes.</p>
 <p>All the drivers for the virtual hardware presented to the Windows operating system by vSphere are stored in the msi file that is compressed within the setup files. In order to extract any of these other drivers, you can run the following within a PowerShell session while you have the iso tools mounted on a guest windows vm (in this instance, mounted on the D: drive):</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -282,9 +282,9 @@
  <span class="nb">PS </span><span class="n">D:</span><span class="p">\&gt;</span> <span class="n">msiexec</span> <span class="n">-a</span> <span class="s2">&#34;$env:Temp\{2C55907B-00D2-48F2-BFD0-E000FB652C6F}~setup\Vmware Tools64.msi&#34;</span> <span class="n">TARGETDIR</span><span class="p">=</span><span class="n">C:</span><span class="p">\</span><span class="n">DESTINATION_DIR</span><span class="s2">&#34;
 </span></code></pre></td></tr></table>
 </div>
-</div><p>After running the above, you will be able to copy out any of the drivers you want from the DESTINATION_DIR directory you specified above, and make them available at OS installation time. You will need to also add some additional <a href="https://www.packer.io/docs/builders/vmware/vsphere-iso#floppy-configuration">Floppy Configuration</a> to your Packer template - we are going to have a look at those settings when we walk through running our completed Packer template.</p>
+</div><p>After running the above, you will be able to copy out any of the drivers you want from the <code>DESTINATION_DIR</code> directory, and make them available at OS installation time. You will need to also add some additional <a href="https://www.packer.io/docs/builders/vmware/vsphere-iso#floppy-configuration">Floppy Configuration</a> to your Packer template - we are going to have a look at those settings when we walk through running our completed Packer template.</p>
 <h3 id="summary">Summary</h3>
-<p>We&rsquo;ve covered off the last of the configuration changes that we needed to make to the sample answer file that comes with the Windows installation media. In the next article, we&rsquo;ll make the some of the final configuration additions needed in our Packer template file to process the answer file, and enable customisation of the Windows OS once it is installed.</p>
+<p>We&rsquo;ve covered off the last of the configuration changes that we needed to make to the sample answer file that comes with the Windows installation media. In the next article, we&rsquo;ll make some of the final configuration additions needed in our Packer template file to process the answer file, and enable customisation of the Windows OS once it is installed.</p>
     </section>
 
     
@@ -313,6 +313,8 @@
             <li><a href="/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/">Part 8 > Configuring the Administrator Password, Auto Logon and Time Zone</a></li>
             
             <li><a href="/posts/2021/02/defining-the-windows-edition-to-install/">Part 9 > Defining the Windows Edition to Install</a></li>
+            
+            <li><a href="/posts/2021/02/configuring-packer-to-use-an-answer-file/">Part 11 > Configuring Packer to Use an Answer File</a></li>
             
         </ul>
         
