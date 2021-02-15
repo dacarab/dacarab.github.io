@@ -168,3 +168,7 @@ a.tag {
     .project-container .project { flex: 1;}
 }
 
+
+th {background-color: #ffffff;  font-style:italic; font-size: small; border-bottom: 1px solid black;}
+tr {font-size: small;}
+tr:nth-child(even) {background-color: #dfedf8;}

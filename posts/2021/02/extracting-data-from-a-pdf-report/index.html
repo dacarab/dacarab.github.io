@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device=width, initial-scale=1">
     <title>dacarab&#39;s blog</title>
-    <link rel="stylesheet"  type="text/css" href="/css/style.css?02022021">
+    <link rel="stylesheet"  type="text/css" href="/css/style.css?15022021">
     <link rel="stylesheet" type="text/css" href="/css/chroma-native.css">
     <link rel="stylesheet" type="text/css" href="/css/chroma-native-customisation.css">
     
@@ -25,7 +25,7 @@
         <h2 class="blogTitle">Extracting Data From a PDF Report</h2>
         <p class="blogSubTitle">
             15 Feb 2021 | 
-            Reading time: 5 minutes |
+            Reading time: 4 minutes |
             <span class="tags">
                 Tags:  
                 
@@ -81,20 +81,32 @@
 </div>
 </div><h3 id="the-itext7-dependencies">The iText7 dependencies</h3>
 <p>These libraries are required by iText 7 - without them, you won&rsquo;t be able to use the necessary classes to work with the PDF file. You don&rsquo;t need all of the files that are brought down by Nuget, if you want to place just the necessary library files into a separate folder, the files you need to copy are:</p>
-<ul>
-<li>
-<p><code>BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</code> - this library provides cryptographic functions for tasks such as signing a PDF.</p>
-</li>
-<li>
-<p><code>Common.Logging.3.4.1\lib\netstandard1.3.dll</code> - an abstraction layer for application logging in .net.</p>
-</li>
-<li>
-<p><code>Common.Logging.Core.3.4.1\lib\netstandard1.0\Common.Logging.Core.dll</code> - dependency for the library above.</p>
-</li>
-<li>
-<p><code>itext7.7.1.14\lib\netstandard2.0\itext.kernel.dll</code> - the core iText7 functionality that we will be using.</p>
-</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Library File</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</code></td>
+<td style="text-align:left">Provides cryptographic functions</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Common.Logging.3.4.1\lib\netstandard1.3.dll</code></td>
+<td style="text-align:left">Abstraction layer for application logging in .net.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Common.Logging.Core.3.4.1\lib\netstandard1.0\Common.Logging.Core.dll</code></td>
+<td style="text-align:left">Dependency for the library above.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>itext7.7.1.14\lib\netstandard2.0\itext.kernel.dll</code></td>
+<td style="text-align:left">Core iText7 functionality that we will be using.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="summary">Summary</h3>
 <p>That covers the basics of what we are looking to cover in this series, and getting hold of the iText7 library and dependencies. In the next post, we&rsquo;ll start to use the library interactively with PowerShell to peak at the innards of the PDF format, which will set us up to decide on how to split our PowerShell code between functions, and some (hopefully) meaningful names for them.</p>
     </section>
