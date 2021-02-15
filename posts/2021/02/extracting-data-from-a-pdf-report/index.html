@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet"  type="text/css" href="/css/style.css?02022021">
+    <link rel="stylesheet" type="text/css" href="/css/chroma-native.css">
+    <link rel="stylesheet" type="text/css" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Extracting Data From a PDF Report</h2>
+        <p class="blogSubTitle">
+            15 Feb 2021 | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/powershell">PowerShell</a>
+                
+                    <a class="tag" href="/tags/pdf">PDF</a>
+                
+            </span>
+            
+                <span>
+                    | Part 1 of <a href="/series/parsing-pdfs-with-powershell">Parsing PDFs with PowerShell</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>There are often times when you are provided information in a report format that you need to do something with. For example, you may receive a regular report from your internal Security team that lists a set of missing patches or security vulnerabilities across your server estate, and you need to action the items listed. These reports are often produced in PDF format.</p>
+<p>Trying to manually pull information out of a report like this and turn it into a useable structure can be tedious and error prone - so having the ability to extract and structure the relevant information from the report, and use one or more scripts to then do something with it, can be very handy.</p>
+<p>In this series of articles, we will look at extracting unstructured data from a PDF file, and turn it into structured data that we can work with. We will use the <a href="https://www.cisecurity.org/benchmark/microsoft_windows_server/">CIS Microsoft Windows Server 2019 RTM (Release 1809) Benchmark</a> as an example document, and have an initial look at an Open Source library (iText7) that we can use to interact with it.</p>
+<p>We&rsquo;ll then have a look at how PDF documents are structured and the classes from the library we&rsquo;ll need to use to extract the data we are interested in. Next we&rsquo;ll start to put together some PowerShell functions to carry out the necessary work to extract and format the data we are interested in.</p>
+<p>Finally, we&rsquo;ll extract the data into Excel using the <a href="https://github.com/dfinke/ImportExcel">ImportExcel</a> module from the PowerShell Gallery, and demonstrate one approach to working with this data with a view to automate the creation of a configuration that we can then use to secure a Windows 2019 server.</p>
+<p>There will be a fairly liberal sprinkling of Regular Expressions mixed into all this, as we&rsquo;ll be leveraging RegEx to do most of the heavy lifting in structuring the data that we extract from the PDF.</p>
+<h3 id="the-itext-7-library">The iText 7 Library</h3>
+<p>If you search around for information on how to extract text from a PDF file using PowerShell, you&rsquo;ll probably find a lot of references to <a href="https://github.com/itext/itextsharp">iTextSharp (aka iText5)</a>. You can still download this library and use it if you wish. The advantages of using this library are that it is not dependent on any other external assemblies, and that the code is a little simpler to use than the iText 7 library. The downsides are that it is no longer being updated, and can&rsquo;t be used with PowerShell Core / PowerShell 7. If you are interested in taking a look, <a href="https://social.technet.microsoft.com/Forums/office/en-US/1268809d-5dc6-4cd2-a97f-a26bc3ae3a8b/using-powershell-to-parse-a-pdf-file">this post</a> gives a brief run through of how to use the library with Windows PowerShell.</p>
+<p>The <a href="https://github.com/itext/itext7-dotnet">iText 7 library for .net</a> is a re-write of the iTextSharp library, and so old code that references iTextSharp would need to be adapted to work correctly. I chose to use this library for this series as it is a popular, mature, open source library (licensed under AGPL, with a commercial licensing option) that comes with .net standard assemblies meaning it can be used with PowerShell v7, and is being actively updated. The downside is that it comes with a couple of dependencies, but these are pretty easy to manage through the use of NuGet.</p>
+<h3 id="installing-itext-7-using-nuget">Installing iText 7 using NuGet</h3>
+<p>The easiest way to install iText 7 is through PowerShell using NuGet. To do this, you&rsquo;ll need the NuGet package provider (which is present in PowerShell 7), and to have the Nuget package source registered.  If it&rsquo;s not already listed when you run <strong>Get-PackageSource</strong>, you can register it using the example listed on the <strong>Register-PackageSource</strong> help page, and then install the package to the current directory:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">Register-PackageSource</span> <span class="n">-Name</span> <span class="n">MyNuGet</span> <span class="n">-Location</span> <span class="n">https</span><span class="err">:</span><span class="p">//</span><span class="n">www</span><span class="p">.</span><span class="n">nuget</span><span class="p">.</span><span class="n">org</span><span class="p">/</span><span class="n">api</span><span class="p">/</span><span class="n">v2</span> <span class="n">-ProviderName</span> <span class="n">NuGet</span>
+<span class="nb">Install-Package</span> <span class="n">iText7</span> <span class="n">-Destination</span> <span class="p">.</span> 
+</code></pre></td></tr></table>
+</div>
+</div><p>At the time of writing, there are some issues with the NuGet package - running the above command generates a dependency loop error. If necessary, you can work around this by manually installing the iText 7 dependencies like so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">Install-Package</span> <span class="n">common</span><span class="p">.</span><span class="n">logging</span> <span class="n">-RequiredVersion</span> <span class="n">3</span><span class="p">.</span><span class="n">4</span><span class="p">.</span><span class="n">1</span> <span class="n">-Destination</span> <span class="p">.</span> <span class="n">-SkipDependencies</span>
+<span class="nb">Install-Package</span> <span class="n">common</span><span class="p">.</span><span class="n">logging</span><span class="p">.</span><span class="n">core</span> <span class="n">-RequiredVersion</span> <span class="n">3</span><span class="p">.</span><span class="n">4</span><span class="p">.</span><span class="n">1</span> <span class="n">-Destination</span> <span class="p">.</span> <span class="n">-SkipDependencies</span>
+<span class="nb">Install-Package</span> <span class="n">itext7</span> <span class="n">-RequiredVersion</span> <span class="n">7</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">14</span> <span class="n">-Destination</span> <span class="p">.</span> <span class="n">-SkipDependencies</span>
+<span class="nb">Install-Package</span> <span class="n">BouncyCastle</span> <span class="n">-RequiredVersion</span> <span class="n">1</span><span class="p">.</span><span class="n">8</span><span class="p">.</span><span class="n">9</span> <span class="n">-Destination</span> <span class="p">.</span> <span class="n">-SkipDependencies</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="the-itext7-dependencies">The iText7 dependencies</h3>
+<p>These libraries are required by iText 7 - without them, you won&rsquo;t be able to use the necessary classes to work with the PDF file. You don&rsquo;t need all of the files that are brought down by Nuget, if you want to place just the necessary library files into a separate folder, the files you need to copy are:</p>
+<ul>
+<li>
+<p><code>BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</code> - this library provides cryptographic functions such as signing a PDF.</p>
+</li>
+<li>
+<p><code>Common.Logging.3.4.1\lib\netstandard1.3\Common.Logging.3.4.1\lib\netstandard1.3.dll</code> - an abstraction layer for application logging in .net.</p>
+</li>
+<li>
+<p><code>Common.Logging.Core.3.4.1\lib\netstandard1.0\Common.Logging.Core.dll</code> - dependency for the library above.</p>
+</li>
+<li>
+<p><code>itext7.7.1.14\lib\netstandard2.0\itext.kernel.dll</code> - the core iText7 functionality that we will be using.</p>
+</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>That covers the basics of what we are looking to cover in this series, and getting hold of the iText7 library and dependencies. In the next post, we&rsquo;ll start to use the library interactively with PowerShell to peak at the innards of the PDF format, which will set us up to decide on how to split our PowerShell code between functions, and some (hopefully) meaningful names for them.</p>
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Parsing PDFs with PowerShell </h3>
+        
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>

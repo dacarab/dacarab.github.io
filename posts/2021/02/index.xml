@@ -7,6 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language><atom:link href="https://dacarab.github.io/posts/2021/02/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Extracting Data From a PDF Report</title>
+      <link>https://dacarab.github.io/posts/2021/02/extracting-data-from-a-pdf-report/</link>
+      <pubDate>Mon, 15 Feb 2021 14:14:38 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/02/extracting-data-from-a-pdf-report/</guid>
+      <description>&lt;p&gt;There are often times when you are provided information in a report format that you need to do something with. For example, you may receive a regular report from your internal Security team that lists a set of missing patches or security vulnerabilities across your server estate, and you need to action the items listed. These reports are often produced in PDF format.&lt;/p&gt;
+&lt;p&gt;Trying to manually pull information out of a report like this and turn it into a useable structure can be tedious and error prone - so having the ability to extract and structure the relevant information from the report, and use one or more scripts to then do something with it, can be very handy.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Configuring Packer to Use an Answer File</title>
       <link>https://dacarab.github.io/posts/2021/02/configuring-packer-to-use-an-answer-file/</link>
       <pubDate>Fri, 12 Feb 2021 10:53:28 +0000</pubDate>

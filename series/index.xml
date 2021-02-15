@@ -6,7 +6,16 @@
     <description>Recent content in Series on dacarab&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 12 Feb 2021 10:53:28 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/series/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 15 Feb 2021 14:14:38 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Parsing PDFs with PowerShell</title>
+      <link>https://dacarab.github.io/series/parsing-pdfs-with-powershell/</link>
+      <pubDate>Mon, 15 Feb 2021 14:14:38 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/series/parsing-pdfs-with-powershell/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Packer and vSphere</title>
       <link>https://dacarab.github.io/series/packer-and-vsphere/</link>

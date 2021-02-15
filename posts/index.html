@@ -28,6 +28,43 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/02/extracting-data-from-a-pdf-report/">Part 1 of Parsing PDFs with PowerShell: Extracting Data From a PDF Report</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>15 Feb 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/powershell">PowerShell</a>
+                
+                    <a class="tag" href="/tags/pdf">PDF</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        <p>There are often times when you are provided information in a report format that you need to do something with. For example, you may receive a regular report from your internal Security team that lists a set of missing patches or security vulnerabilities across your server estate, and you need to action the items listed. These reports are often produced in PDF format.</p>
+<p>Trying to manually pull information out of a report like this and turn it into a useable structure can be tedious and error prone - so having the ability to extract and structure the relevant information from the report, and use one or more scripts to then do something with it, can be very handy.</p>
+    </div>
+    <div class="tagIcons">
+        
+        <a href="/tags/powershell">
+            <img src="/images/PowerShell.png" width="48" height="48" alt="PowerShell">
+        </a>
+        
+        <a href="/tags/pdf">
+            <img src="/images/PDF.png" width="48" height="48" alt="PDF">
+        </a>
+        
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/02/configuring-packer-to-use-an-answer-file/">Part 11 of Packer and vSphere: Configuring Packer to Use an Answer File</a>
             </h3>
         
@@ -178,49 +215,6 @@ In this article, we continue to build out our answer file by covering how to ide
     <div class="blogListSummary">
         <p>In the <a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">last article</a> in this series, we covered the answer file configuration and security considerations for configuring the WinRM service on the Windows template machine that we are automating through the use of Packer.</p>
 <p>In this article, we will look at configuring the answer file to set the Administrator password and the time zone during the initial setup of the windows template VM.</p>
-    </div>
-    <div class="tagIcons">
-        
-        <a href="/tags/vsphere">
-            <img src="/images/vSphere.png" width="48" height="48" alt="vSphere">
-        </a>
-        
-        <a href="/tags/packer">
-            <img src="/images/Packer.png" width="48" height="48" alt="Packer">
-        </a>
-        
-        <a href="/tags/windows">
-            <img src="/images/Windows.png" width="48" height="48" alt="Windows">
-        </a>
-        
-    </div>
-</article>
-    
-        <article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">Part 7 of Packer and vSphere: Configuring a Windows Answer File for use with Packer</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>28 Jan 2021</time> | 
-            Reading time: 5 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-                    <a class="tag" href="/tags/windows">Windows</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        In the previous article we discussed the high level changes that we need to make to the sample answer file that comes with the Windows Server installation media, with a view to tailoring it for use with the Packer template file that we are working on.
-In this article, we&rsquo;re going to start to add that configuration by making the necessary changes to the FirstLogonCommands section of the answer file.
     </div>
     <div class="tagIcons">
         

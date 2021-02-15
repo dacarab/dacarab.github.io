@@ -28,6 +28,49 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">Part 7 of Packer and vSphere: Configuring a Windows Answer File for use with Packer</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>28 Jan 2021</time> | 
+            Reading time: 5 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/vsphere">vSphere</a>
+                
+                    <a class="tag" href="/tags/packer">Packer</a>
+                
+                    <a class="tag" href="/tags/windows">Windows</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        In the previous article we discussed the high level changes that we need to make to the sample answer file that comes with the Windows Server installation media, with a view to tailoring it for use with the Packer template file that we are working on.
+In this article, we&rsquo;re going to start to add that configuration by making the necessary changes to the FirstLogonCommands section of the answer file.
+    </div>
+    <div class="tagIcons">
+        
+        <a href="/tags/vsphere">
+            <img src="/images/vSphere.png" width="48" height="48" alt="vSphere">
+        </a>
+        
+        <a href="/tags/packer">
+            <img src="/images/Packer.png" width="48" height="48" alt="Packer">
+        </a>
+        
+        <a href="/tags/windows">
+            <img src="/images/Windows.png" width="48" height="48" alt="Windows">
+        </a>
+        
+    </div>
+</article>
+    
+        <article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/01/creating-a-windows-answer-file-for-use-with-packer/">Part 6 of Packer and vSphere: Creating a Windows Answer File for Use With Packer</a>
             </h3>
         
@@ -166,43 +209,6 @@ Defining the template OS In order to be able to utilise the storage resources th
         In Part 2 of this series, we discussed how to utilise the vsphere-iso Packer builder component in order to connect up to a vSphere 7 environment.
 In this article, we will continue to expand on that template, and introduce configuration to define the virtual hardware to allocate to the template VM machine.
 Adding additional vSphere settings To start with, we&rsquo;ll create User Variables for the cluster, datacentre, datastore and vm folder that it will be deployed to, along with the relevant fields within the vsphere-iso builder:
-    </div>
-    <div class="tagIcons">
-        
-        <a href="/tags/vsphere">
-            <img src="/images/vSphere.png" width="48" height="48" alt="vSphere">
-        </a>
-        
-        <a href="/tags/packer">
-            <img src="/images/Packer.png" width="48" height="48" alt="Packer">
-        </a>
-        
-    </div>
-</article>
-    
-        <article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/connecting-to-vsphere-with-packer/">Part 2 of Packer and vSphere: Connecting to VSphere With Packer</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>27 Jan 2021</time> | 
-            Reading time: 4 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        In the first article in this series, we had an initial look at Packer and the high level components that it employs to automate the creation of VM templates for various cloud and hypervisor platforms.
-This time, we&rsquo;ll start to look at some specific configuration to enable us to connect up to a vSphere 7 environment, with a view to automating the creation of a Windows Server 2019 VM template.
     </div>
     <div class="tagIcons">
         
