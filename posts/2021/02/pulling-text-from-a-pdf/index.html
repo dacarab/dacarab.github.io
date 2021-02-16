@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device=width, initial-scale=1">
+    <title>dacarab&#39;s blog</title>
+    <link rel="stylesheet"  type="text/css" href="/css/style.css?15022021">
+    <link rel="stylesheet" type="text/css" href="/css/chroma-native.css">
+    <link rel="stylesheet" type="text/css" href="/css/chroma-native-customisation.css">
+    
+</head>
+<body>
+        <div class="container"><nav>
+    <a href="/">dacarab&#39;s blog</a>
+    <a href="/posts">Posts</a>
+    <a href="/series">Series</a>
+    <a href="/tags">Tags</a>
+    
+</nav><header>
+    
+</header>
+
+<main>
+<article class="post">
+    <header>
+        <h2 class="blogTitle">Pulling Text from a PDF</h2>
+        <p class="blogSubTitle">
+            16 Feb 2021 | 
+            Reading time: 4 minutes |
+            <span class="tags">
+                Tags:  
+                
+                    <a class="tag" href="/tags/powershell">PowerShell</a>
+                
+                    <a class="tag" href="/tags/pdf">PDF</a>
+                
+            </span>
+            
+                <span>
+                    | Part 2 of <a href="/series/parsing-pdfs-with-powershell">Parsing PDFs with PowerShell</a> 
+                </span>
+            
+        </p>
+    </header>
+
+    <section class="body">
+        <p>In the last article, we started to look at the iText 7 library, and how to use NuGet to install it and it&rsquo;s dependencies. In this article, we&rsquo;ll start to look at the classes that we need to leverage in order to start interacting with the PDF file, and pulling out the data that we are interested in.</p>
+<p>In order to understand how to  extract text from a PDF, we are going to need to use a mixture of the iText7 libraries' model of a PDF, as well as an understanding of elements of the PDF format itself. In other words, we&rsquo;ll be able to use iText7 to &ldquo;get at&rdquo; the text data of the PDF - but it&rsquo;s not going to be in plain text, it&rsquo;s going to be formatted as per the PDF standard. So once we have that PDF formatted data, we are going to need to manipulate this data in order to extract the text contained within the PDF document. This will make more sense if we walk through an example.</p>
+<h3 id="interacting-with-the-pdf-document-using-itext7">Interacting with the PDF Document using iText7</h3>
+<p>I&rsquo;m going to use Visual Studio Code, but for now it&rsquo;s perfectly fine to just use a plain old shell prompt if you prefer - we are not going to start writing any code yet, just running interactive commands to examine the PDF format. To do this, you&rsquo;ll need a copy of the <a href="https://www.cisecurity.org/benchmark/microsoft_windows_server/">CIS Windows Server 2019 Benchmark</a> PDF that we discussed in the previous article, as well as the iText7 assembly and it&rsquo;s dependencies:</p>
+<ul>
+<li><code>BouncyCastle.Crypto.dll</code></li>
+<li><code>Common.Logging.Core.dll</code></li>
+<li><code>Common.Logging.dll</code></li>
+<li><code>itext.kernel.dll</code></li>
+</ul>
+<p>To start with, we&rsquo;ll import these into out PowerShell session:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nb">add-type</span> <span class="n">-path</span> <span class="p">.\</span><span class="n">lib</span><span class="p">\</span><span class="n">BouncyCastle</span><span class="p">.</span><span class="n">Crypto</span><span class="p">.</span><span class="n">dll</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nb">add-type</span> <span class="n">-path</span> <span class="p">.\</span><span class="n">lib</span><span class="p">\</span><span class="n">Common</span><span class="p">.</span><span class="n">Logging</span><span class="p">.</span><span class="n">Core</span><span class="p">.</span><span class="n">dll</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nb">add-type</span> <span class="n">-path</span> <span class="p">.\</span><span class="n">lib</span><span class="p">\</span><span class="n">Common</span><span class="p">.</span><span class="n">Logging</span><span class="p">.</span><span class="n">dll</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nb">add-type</span> <span class="n">-Path</span> <span class="p">.\</span><span class="n">lib</span><span class="p">\</span><span class="n">itext</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">dll</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Next, using classes from the itext.kernell.dll assembly, we&rsquo;ll create a PdfReader object and pass it the path to the PDF file that we are working with. Then, we&rsquo;ll create a PdfDocument object and pass it the PdfReader object, which will be used to read the document from the file:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$reader</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">iText</span><span class="p">.</span><span class="n">Kernel</span><span class="p">.</span><span class="n">Pdf</span><span class="p">.</span><span class="n">PdfReader</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="n">PdfReader</span> <span class="n">-ArgumentList</span> <span class="s2">&#34;C:\Code\CIS_Microsoft_Windows_Server_2019_RTM_Release_1809_Benchmark_v1.1.0.pdf&#34;</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$doc</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">iText</span><span class="p">.</span><span class="n">Kernel</span><span class="p">.</span><span class="n">Pdf</span><span class="p">.</span><span class="n">PdfDocument</span> <span class="n">-ArgumentList</span> <span class="nv">$reader</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>We can now start to interact with the document. To start with, we can use the GetNumberofPages() method to pull back the number of pages in the document:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span><span class="nv">$d</span><span class="p">.</span><span class="n">GetNumberOfPages</span><span class="p">()</span>
+<span class="n">993</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="retrieving-a-page">Retrieving a Page</h3>
+<p>We can also now call the GetPage() method from $doc, and get an instance of PdfPage for one of the pages in the document. Page 1 will be the cover page, so let&rsquo;s have a look at page 2:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$page</span> <span class="p">=</span> <span class="nv">$doc</span><span class="p">.</span><span class="n">GetPage</span><span class="p">(</span><span class="n">2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The next step is to get the contents of the page - this is stored as a compressed stream, and can be retrieved by calling GetContentBytes() on $page. We can then uncompress this by  creating a PdfString object, and passing it the stream.</p>
+<p>An oddity of the New-Object cmdlet is that if you pass it an array to the ArgumentList parameter, it will expand the array and pass its contents to the constructor of the object being created. To get around this, we simply pass the array as a single element within an encapsulating array as so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$pdfString</span> <span class="p">=</span>  <span class="nb">New-Object</span> <span class="n">iText</span><span class="p">.</span><span class="n">Kernel</span><span class="p">.</span><span class="n">Pdf</span><span class="p">.</span><span class="n">PdfString</span> <span class="n">-ArgumentList</span> <span class="p">(,</span><span class="nv">$page2</span><span class="p">.</span><span class="n">GetContentBytes</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>If you save the contents of $pdfString to a file (e.g. <strong>$pdfString | Out-File pdfString.txt</strong>) and inspect it, you may think that it contains complete gibberish - and you&rsquo;d be right. But if you squint at line 90, you might be able to make out the characters of a phrase that appears on page 2 of the PDF, interspersed within the parenthesis:</p>
+<p><code>[(Te)-12(r)6(m)11(s)4( )38(o)-6(f)-6( )38(U)9(s)4(e)] TJ</code></p>
+<h3 id="extracting-the-text">Extracting the Text</h3>
+<p>To parse out the extraneous characters in this string, we can use a regular expression to define a capture group that just captures the characters within parenthesis, and then use a StringBuilder to append these characters together, producing the phrase on Page 2 of the PDF. To do this, run the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-PowerShell" data-lang="PowerShell"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$regPattern</span> <span class="p">=</span> <span class="no">[regex]</span><span class="s2">&#34;\((.*?)\)&#34;</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$pdfSnippet</span> <span class="p">=</span> <span class="s2">&#34;[(Te)-12(r)6(m)11(s)4( )38(o)-6(f)-6( )38(U)9(s)4(e)] TJ&#34;</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$sb</span> <span class="p">=</span> <span class="no">[System.Text.StringBuilder]</span><span class="p">::</span><span class="n">new</span><span class="p">()</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="no">[regex]</span><span class="p">::</span><span class="n">matches</span><span class="p">(</span><span class="nv">$pdfSnippet</span><span class="p">,</span> <span class="nv">$regPattern</span><span class="p">)</span> <span class="p">|</span> <span class="k">ForEach</span> <span class="p">{</span><span class="nv">$sb</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Groups</span><span class="p">[</span><span class="n">1</span><span class="p">])}</span>
+<span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Code</span><span class="p">&gt;</span> <span class="nv">$sb</span><span class="p">.</span><span class="n">ToString</span><span class="p">()</span>
+
+<span class="n">Terms</span> <span class="n">of</span> <span class="n">Use</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>If you want to get a better understanding of the regular expression pattern used here, head over to <a href="https://regex101.com/">https://regex101.com/</a> and paste in the pdf snippet and regex pattern. This site does a good job of breaking down and explaining each part of the regular expression, though as it doesn&rsquo;t support the .net flavour of regex, more complicated expressions can be incorrectly interpreted.</p>
+<h3 id="summary">Summary</h3>
+<p>We&rsquo;ve run through the steps necessary to successfully extract some text from our PDF. In the next article, we&rsquo;ll continue down this road, and further discuss the format that this PDF is stored in, to give an understanding of some of the tasks that we&rsquo;ll need to write functions for to extract the data that we are interested in.</p>
+    </section>
+
+    
+    <section class="related">
+        
+        
+        <h4>More posts in this series: Parsing PDFs with PowerShell </h3>
+        
+        
+        <ul>
+            
+            <li><a href="/posts/2021/02/extracting-data-from-a-pdf-report/">Part 1 > Extracting Data From a PDF Report</a></li>
+            
+        </ul>
+        
+    </section>
+    
+</article>
+
+
+            </main><footer>
+    <div class="footerText">
+        <small> &#169;2021 dacarab</small>
+    </div>
+</footer></div>
+    </body>
+</html>

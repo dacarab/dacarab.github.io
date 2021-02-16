@@ -29,6 +29,43 @@
     <header>
         
             <h3 class="blogListTitle">
+                <a href="/posts/2021/02/pulling-text-from-a-pdf/">Part 2 of Parsing PDFs with PowerShell: Pulling Text from a PDF</a>
+            </h3>
+        
+        <div class="blogListSubtitle">
+            <time>16 Feb 2021</time> | 
+            Reading time: 4 minutes |
+            <span class="tags">
+                in 
+                
+                    <a class="tag" href="/tags/powershell">PowerShell</a>
+                
+                    <a class="tag" href="/tags/pdf">PDF</a>
+                
+            </span>
+        </div>
+    </header>
+    <div class="blogListSummary">
+        <p>In the last article, we started to look at the iText 7 library, and how to use NuGet to install it and it&rsquo;s dependencies. In this article, we&rsquo;ll start to look at the classes that we need to leverage in order to start interacting with the PDF file, and pulling out the data that we are interested in.</p>
+<p>In order to understand how to  extract text from a PDF, we are going to need to use a mixture of the iText7 libraries' model of a PDF, as well as an understanding of elements of the PDF format itself. In other words, we&rsquo;ll be able to use iText7 to &ldquo;get at&rdquo; the text data of the PDF - but it&rsquo;s not going to be in plain text, it&rsquo;s going to be formatted as per the PDF standard. So once we have that PDF formatted data, we are going to need to manipulate this data in order to extract the text contained within the PDF document. This will make more sense if we walk through an example.</p>
+    </div>
+    <div class="tagIcons">
+        
+        <a href="/tags/powershell">
+            <img src="/images/PowerShell.png" width="48" height="48" alt="PowerShell">
+        </a>
+        
+        <a href="/tags/pdf">
+            <img src="/images/PDF.png" width="48" height="48" alt="PDF">
+        </a>
+        
+    </div>
+</article>
+
+<article class="blogListEntry">
+    <header>
+        
+            <h3 class="blogListTitle">
                 <a href="/posts/2021/02/extracting-data-from-a-pdf-report/">Part 1 of Parsing PDFs with PowerShell: Extracting Data From a PDF Report</a>
             </h3>
         
@@ -173,49 +210,6 @@ We are stepping away from the answer file now, to add some of the final touches 
     <div class="blogListSummary">
         Previously, we covered adding additional configuration to our Windows answer file that defined the Administrator password, auto logon and time zone settings on our template VM.
 In this article, we continue to build out our answer file by covering how to identify the necessary information from the Windows installation media to select the edition of Windows that we want to install, and then adding this info to the appropriate section of the Windows answer file.
-    </div>
-    <div class="tagIcons">
-        
-        <a href="/tags/vsphere">
-            <img src="/images/vSphere.png" width="48" height="48" alt="vSphere">
-        </a>
-        
-        <a href="/tags/packer">
-            <img src="/images/Packer.png" width="48" height="48" alt="Packer">
-        </a>
-        
-        <a href="/tags/windows">
-            <img src="/images/Windows.png" width="48" height="48" alt="Windows">
-        </a>
-        
-    </div>
-</article>
-
-<article class="blogListEntry">
-    <header>
-        
-            <h3 class="blogListTitle">
-                <a href="/posts/2021/01/configuring-the-administrator-password-auto-logon-and-time-zone/">Part 8 of Packer and vSphere: Configuring the Administrator Password, Auto Logon and Time Zone</a>
-            </h3>
-        
-        <div class="blogListSubtitle">
-            <time>29 Jan 2021</time> | 
-            Reading time: 5 minutes |
-            <span class="tags">
-                in 
-                
-                    <a class="tag" href="/tags/vsphere">vSphere</a>
-                
-                    <a class="tag" href="/tags/packer">Packer</a>
-                
-                    <a class="tag" href="/tags/windows">Windows</a>
-                
-            </span>
-        </div>
-    </header>
-    <div class="blogListSummary">
-        <p>In the <a href="/posts/2021/01/configuring-a-windows-answer-file-for-use-with-packer/">last article</a> in this series, we covered the answer file configuration and security considerations for configuring the WinRM service on the Windows template machine that we are automating through the use of Packer.</p>
-<p>In this article, we will look at configuring the answer file to set the Administrator password and the time zone during the initial setup of the windows template VM.</p>
     </div>
     <div class="tagIcons">
         

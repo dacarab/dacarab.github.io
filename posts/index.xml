@@ -6,7 +6,17 @@
     <description>Recent content in Posts on dacarab&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 15 Feb 2021 14:14:38 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 16 Feb 2021 00:42:04 +0000</lastBuildDate><atom:link href="https://dacarab.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Pulling Text from a PDF</title>
+      <link>https://dacarab.github.io/posts/2021/02/pulling-text-from-a-pdf/</link>
+      <pubDate>Tue, 16 Feb 2021 00:42:04 +0000</pubDate>
+      
+      <guid>https://dacarab.github.io/posts/2021/02/pulling-text-from-a-pdf/</guid>
+      <description>&lt;p&gt;In the last article, we started to look at the iText 7 library, and how to use NuGet to install it and it&amp;rsquo;s dependencies. In this article, we&amp;rsquo;ll start to look at the classes that we need to leverage in order to start interacting with the PDF file, and pulling out the data that we are interested in.&lt;/p&gt;
+&lt;p&gt;In order to understand how to  extract text from a PDF, we are going to need to use a mixture of the iText7 libraries&#39; model of a PDF, as well as an understanding of elements of the PDF format itself. In other words, we&amp;rsquo;ll be able to use iText7 to &amp;ldquo;get at&amp;rdquo; the text data of the PDF - but it&amp;rsquo;s not going to be in plain text, it&amp;rsquo;s going to be formatted as per the PDF standard. So once we have that PDF formatted data, we are going to need to manipulate this data in order to extract the text contained within the PDF document. This will make more sense if we walk through an example.&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>Extracting Data From a PDF Report</title>
       <link>https://dacarab.github.io/posts/2021/02/extracting-data-from-a-pdf-report/</link>
